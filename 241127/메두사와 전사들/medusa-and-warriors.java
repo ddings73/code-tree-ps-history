@@ -62,7 +62,7 @@ public class Main {
             int nr = medusa[0] + dr[i];
             int nc = medusa[1] + dc[i];
             if(nr < 0 || nr >= N || nc < 0 || nc >= N || visit[nr][nc] || map[nr][nc] == 1) continue;
-            int dist = 0;
+            int dist = -1;
 
             PriorityQueue<int[]> bfsPQ = new PriorityQueue<>((o1, o2) -> o1[0] - o2[0]);
             bfsPQ.add(new int[]{0, nr, nc});
@@ -85,12 +85,13 @@ public class Main {
                 }
             }
 
+            if(dist == -1) continue;
             pq.add(new int[]{dist, i, nr, nc});
         }
 
         if(pq.isEmpty()){
-            sb = new StringBuilder();
-            sb.append(-1);
+            sb.delete(0, sb.length());
+            sb.append("-1");
             return false;
         }
 
