@@ -37,7 +37,6 @@ public class Main {
             int medusaAreaDir = step2Info[1];
 
             // 전사 이동 
-            // 첫 이동
             int warriorMove = step3_1(medusaAreaDir);
             warriorMove += step3_2(medusaAreaDir);
             
@@ -253,13 +252,14 @@ public class Main {
                 int nc = pos[1] + dc[j];
                 if(nr < 0 || nr >= N || nc < 0 || nc >= N || medusaArea[medusaDir][nr][nc]) continue;
                 int dist = getDistFromTo(new int[]{nr, nc}, medusa); 
-                if(originDist <= dist) continue;
+                if(originDist < dist) continue;
 
                 pq.add(new int[]{dist, j, nr, nc});
             }
-
+            
             if(pq.isEmpty()){
                 warriorMap[pos[0]][pos[1]]++;
+                warriors.add(pos);
                 continue;
             }
 
@@ -298,13 +298,14 @@ public class Main {
                 int nc = pos[1] + dc[j % 4];
                 if(nr < 0 || nr >= N || nc < 0 || nc >= N || medusaArea[medusaDir][nr][nc]) continue;
                 int dist = getDistFromTo(new int[]{nr, nc}, medusa);
-                if(originDist <= dist) continue;
+                if(originDist < dist) continue;
 
                 pq.add(new int[]{dist, j, nr, nc});
             }
 
             if(pq.isEmpty()){
                 warriorMap[pos[0]][pos[1]]++;
+                warriors.add(pos);
                 continue;
             }
 
@@ -391,22 +392,31 @@ public class Main {
 }
 
 /*
-0 0 0 1
-1 0 0 0
-0 0 1 0
-0 1 0 0
+[0, 1, 0, 0, 0, 0]
+[0, 1, 1, 1, 1, 0]
+[0, 0, 0, 0, 1, 1]
+[1, 0, 1, 1, 0, 0]
+[0, 0, 0, 0, 1, 0]
+[0, 0, 0, 0, 0, 0]
 
-0 0 0 0 1 0
-0 3 4 1 1 0
-3 3 0 0 0 0
-0 0 3 0 0 1
-0 2 0 0 0 0 
-0 0 0 0 0 0
+[0, 0, 0, 0, 0, 0]
+[0, 1, 1, 0, 0, 0]
+[0, 0, 2, 1, 0, 0]
+[0, 0, 1, 1, 1, 0]
+[0, 1, 0, 0, 1, 0]
+[0, 0, 0, 0, 0, 0]
 
-0 0 0 1 0 0
-0 0 0 1 1 0
-0 0 0 0 0 0
-0 0 0 0 0 0
-0 0 2 0 1 0 
-0 0 0 0 0 0
+[0, 0, 0, 0, 0, 0]
+[0, 1, 1, 0, 0, 0]
+[0, 0, 2, 1, 0, 0]
+[0, 0, 0, 1, 0, 0]
+[0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0]
+
+[0, 0, 0, 0, 0, 0]
+[0, 0, 0, 1, 0, 0]
+[0, 0, 2, 1, 0, 0]
+[0, 1, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0]
 */
