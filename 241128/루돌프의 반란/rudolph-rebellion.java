@@ -29,8 +29,7 @@ public class Main {
         while(M-- > 0){
             for(int i = 0; i < P; i++){
                 if(stunCnt[i] == 0) continue;
-                stunCnt[i]--;
-                if(stunCnt[i] == 0) 
+                if(--stunCnt[i] == 0) 
                     santaStatus[i] = ARRIVE;
             }
 
@@ -165,7 +164,7 @@ public class Main {
     }
 
     private static void interact(int r, int c, int dir, int seq){
-        while(santaMap[r][c][0] >= 0){
+        while(santaMap[r][c][0] > 0){
             int tSeq = santaMap[r][c][1];
 
             santas[seq][0] = r;
@@ -177,6 +176,7 @@ public class Main {
             c += dc[dir];
             if(r < 0 || r >= N || c < 0 || c >= N){
                 santaStatus[tSeq] = OUT;
+                stunCnt[tSeq] = 0;
                 break;
             }
 
