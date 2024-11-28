@@ -3,11 +3,12 @@
 # 🥇 실전 훈련
 |총 문제 수|티어|유형|
 |---:|---|---|
-|1|![Gold1][g1] ~ ![Gold1][g1]|`Simulation` `BFS`|
+|2|![Gold2][g2] ~ ![Gold1][g1]|`Simulation` `BFS`|
 
 |기록분류|이름|티어|유형|상태|최근 제출 코드|
 |---|---|---|---|---|---|
 |기출문제|[메두사와 전사들](https://www.codetree.ai/training-field/frequent-problems/problems/medusa-and-warriors)|![Gold1][g1]|`BFS` `Simulation`|![Passed][passed]|[링크](https://github.com/ddings73/CodeTree/blob/main/241127/%EB%A9%94%EB%91%90%EC%82%AC%EC%99%80%20%EC%A0%84%EC%82%AC%EB%93%A4/medusa-and-warriors.java)|
+|기출문제|[루돌프의 반란](https://www.codetree.ai/training-field/frequent-problems/problems/rudolph-rebellion)|![Gold2][g2]|`Simulation`|![Passed][passed]|[링크](https://github.com/ddings73/CodeTree/blob/main/241128/%EB%A3%A8%EB%8F%8C%ED%94%84%EC%9D%98%20%EB%B0%98%EB%9E%80/rudolph-rebellion.java)|
 
 
 
