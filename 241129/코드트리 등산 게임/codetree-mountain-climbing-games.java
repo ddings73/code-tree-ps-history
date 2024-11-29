@@ -41,23 +41,29 @@ public class Main {
                 List<Integer> mountain = new ArrayList<>(dq);
 
                 List<int[]> list = new ArrayList<>();
+                TreeSet<int[]> tSet = new TreeSet<>((o1, o2)->{
+                    if(o1[0] == o2[0]) return Integer.compare(o2[1], o1[1]);
+                    return Integer.compare(o1[0], o2[0]);
+                });
+
                 for(int i = 0; i < N; i++){
                     if(i == 0) {
-                        list.add(new int[]{mountain.get(i), 0});
+                        int[] item = new int[]{mountain.get(i), 0};
+                        list.add(item);
+                        tSet.add(item);
                         continue;
                     }
 
                     int height = mountain.get(i);
 
                     // 내 앞에 온 높이 중에서 나보다 낮되, 가장 높은 점수 + 100만점 => 내 위치에서의 점수
-                    List<int[]> cloneList = new ArrayList<>(list);
-                    Collections.sort(cloneList, (o1, o2) -> o1[0] - o2[0]); // 높이 오름차순 정렬
+                    List<int[]> sortedList = new ArrayList<>(tSet);
                     
                     int idx = -1;
-                    int left = 0, right = i - 1;
+                    int left = 0, right = sortedList.size() - 1;
                     while(left <= right){
                         int mid = (left + right)/2;
-                        if(cloneList.get(mid)[0] < height){
+                        if(sortedList.get(mid)[0] < height){
                             idx = mid;
                             left = mid + 1;
                         }else{
@@ -65,11 +71,18 @@ public class Main {
                         }
                     }
 
-                    if(idx == -1) list.add(new int[]{height, 0});
+                    if(idx == -1) {
+                        int[] item = new int[]{height, 0};
+                        list.add(item);
+                        tSet.add(item);
+                    }
                     else{
-                        List<int[]> subList = cloneList.subList(0, idx + 1);
+                        List<int[]> subList = sortedList.subList(0, idx + 1);
                         Collections.sort(subList, (o1, o2)->o2[1] - o1[1]);
-                        list.add(new int[]{height, subList.get(0)[1] + 1000000});
+
+                        int[] item = new int[]{height, subList.get(0)[1] + 1000000};
+                        list.add(item);
+                        tSet.add(item);
                     }
                 }
 
@@ -81,7 +94,6 @@ public class Main {
                 }
 
                 point += max;
-
                 sb.append(point).append('\n');
             }
         }
