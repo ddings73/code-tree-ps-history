@@ -19,8 +19,10 @@ public class Main {
                 for(int i = 0; i < N; i++){
                     dq.addLast(Integer.parseInt(stk.nextToken()));
                 }
+                
             }else if(command == 200){ // 우공이산
                 int height = Integer.parseInt(stk.nextToken());
+
                 dq.addLast(height);
                 N++;
             }else if(command == 300){ // 지진
@@ -38,67 +40,66 @@ public class Main {
                     오른쪽에 있는 산 중에서 내 위치보다 높기만 하면 되는듯
                 */
                 int m_index = Integer.parseInt(stk.nextToken()) - 1;
-                List<Integer> mountain = new ArrayList<>(dq);
 
                 List<int[]> list = new ArrayList<>();
-                TreeSet<int[]> tSet = new TreeSet<>((o1, o2)->{
-                    if(o1[0] == o2[0]) return Integer.compare(o2[1], o1[1]);
-                    return Integer.compare(o1[0], o2[0]);
-                });
+                TreeMap<Integer, Integer> tMap = new TreeMap<>();
+                int[] dp = new int[1_000_001];
 
+                List<Integer> mountain = new ArrayList<>(dq);
                 for(int i = 0; i < N; i++){
                     if(i == 0) {
-                        int[] item = new int[]{mountain.get(i), 0};
-                        list.add(item);
-                        tSet.add(item);
+                        list.add(new int[]{mountain.get(i), 0});
+                        tMap.put(mountain.get(i), 0);
                         continue;
                     }
 
                     int height = mountain.get(i);
 
                     // 내 앞에 온 높이 중에서 나보다 낮되, 가장 높은 점수 + 100만점 => 내 위치에서의 점수
-                    List<int[]> sortedList = new ArrayList<>(tSet);
+                    List<Integer> cloneList = new ArrayList<>(tMap.keySet());
                     
-                    int idx = -1;
-                    int left = 0, right = sortedList.size() - 1;
-                    while(left <= right){
-                        int mid = (left + right)/2;
-                        if(sortedList.get(mid)[0] < height){
-                            idx = mid;
-                            left = mid + 1;
-                        }else{
-                            right = mid - 1;
-                        }
-                    }
+                    int idx = binarySearch(cloneList, height);
+                    if(idx == -1){
+                        list.add(new int[]{height, 0});
 
-                    if(idx == -1) {
-                        int[] item = new int[]{height, 0};
-                        list.add(item);
-                        tSet.add(item);
-                    }
-                    else{
-                        List<int[]> subList = sortedList.subList(0, idx + 1);
-                        Collections.sort(subList, (o1, o2)->o2[1] - o1[1]);
+                        if(!tMap.containsKey(height))
+                            tMap.put(height, 0);
+                    } else{
+                        int p = dp[cloneList.get(idx)] + 1000000;
+                        list.add(new int[]{height, p});
 
-                        int[] item = new int[]{height, subList.get(0)[1] + 1000000};
-                        list.add(item);
-                        tSet.add(item);
+                        dp[height] = Math.max(dp[height], p);
+                        tMap.put(height, dp[height]);
                     }
                 }
-
-                int point = list.get(m_index)[1] + 1000000;
 
                 int max = 0;
                 for(int i = 0; i < N; i++){
                     max = Math.max(max, list.get(i)[0] + list.get(i)[1]);
                 }
 
-                point += max;
+                int point = list.get(m_index)[1] + 1000000 + max;
                 sb.append(point).append('\n');
             }
         }
 
         System.out.println(sb.toString());
+    }
+
+    private static int binarySearch(List<Integer> sortedList, int height){
+        int idx = -1;
+        int left = 0, right = sortedList.size() - 1;
+        while(left <= right){
+            int mid = (left + right)/2;
+            if(sortedList.get(mid) < height){
+                idx = mid;
+                left = mid + 1;
+            }else{
+                right = mid - 1;
+            }
+        }
+
+        return idx;
     }
 
 }
