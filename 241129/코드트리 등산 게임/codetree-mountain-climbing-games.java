@@ -43,9 +43,8 @@ public class Main {
 
                 List<int[]> list = new ArrayList<>();
                 TreeMap<Integer, Integer> tMap = new TreeMap<>();
-                int[] dp = new int[1_000_001];
-
                 List<Integer> mountain = new ArrayList<>(dq);
+
                 for(int i = 0; i < N; i++){
                     if(i == 0) {
                         list.add(new int[]{mountain.get(i), 0});
@@ -59,17 +58,21 @@ public class Main {
                     List<Integer> cloneList = new ArrayList<>(tMap.keySet());
                     
                     int idx = binarySearch(cloneList, height);
+
                     if(idx == -1){
                         list.add(new int[]{height, 0});
 
                         if(!tMap.containsKey(height))
                             tMap.put(height, 0);
                     } else{
-                        int p = dp[cloneList.get(idx)] + 1000000;
-                        list.add(new int[]{height, p});
+                        SortedMap<Integer, Integer> sortedMap = tMap.subMap(tMap.firstKey(), cloneList.get(idx) + 1);
+                        TreeSet<Integer> tSet = new TreeSet(sortedMap.values());
 
-                        dp[height] = Math.max(dp[height], p);
-                        tMap.put(height, dp[height]);
+                        int p = tSet.last() + 1000000;
+
+                        list.add(new int[]{height, p});
+                        if(tMap.containsKey(height) && tMap.get(height) >= p) continue; 
+                        tMap.put(height, p);
                     }
                 }
 
@@ -104,3 +107,6 @@ public class Main {
 
 }
 
+
+
+// 57 47 79 70 22 92 7 3 11 94 2 47 8 86
