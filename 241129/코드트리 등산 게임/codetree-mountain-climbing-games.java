@@ -9,18 +9,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         Q = Integer.parseInt(br.readLine());
-
-        /*
-            산 랜덤 선택
-            오른쪽 이동하면 100만점
-            케이블카 타면 100만점
-            더이상 이동 못하면 해당 산 높이만큼 점수 추가
-
-            첫 명령과 마지막 명령을 제외한 모든 명령이 산의 추가라면 약 550000의 산 개수가 됨
-            오른쪽 이동이 반드시 바로 옆 산으로 가는 것이 아님
-            오른쪽에 있는 산 중에서 내 위치보다 높기만 하면 되는듯
-        */
-
         StringBuilder sb = new StringBuilder();
         while(Q-- > 0){
             StringTokenizer stk = new StringTokenizer(br.readLine());
@@ -33,6 +21,7 @@ public class Main {
                     int idx = mountain.size() == 0 ? 0 : binarySearch(height);
                     stack.add(idx);
                     if(idx == mountain.size()) mountain.add(new ArrayDeque<>());
+                    // 특정 등산 횟수에 대한 현재 산의 높이는 항상 최소 값이다.
                     mountain.get(idx).addLast(height);
                 }
             }else if(command == 200){ // 우공이산
@@ -53,7 +42,8 @@ public class Main {
                 N--;
             }else if(command == 400){ // 등산 시뮬레이션
                 int m_index = Integer.parseInt(stk.nextToken()) - 1;
-
+					
+                // mountain.size()는 `최대 등산 수 + 1` 이므로, 케이블 카 횟수를 따로 추가하지 않아도 됨
                 int point = (stack.get(m_index) + mountain.size()) * 1000000;
                 point += (mountain.get(mountain.size() - 1).peekFirst());
                 sb.append(point).append('\n');
@@ -70,7 +60,7 @@ public class Main {
             int mid = (left + right)/2;
 
             int minItem = mountain.get(mid).peekLast();
-            if(minItem < height){ // 현재 스택보다 크므로, 더 큰 스택을 확인해야함
+            if(minItem < height){ // 현재 등산횟수의 최소 값보다 크므로, 더 큰 등산횟수를 확인해야함
                 left = mid + 1;
             }else{
                 idx = mid;
@@ -82,13 +72,3 @@ public class Main {
     }
 
 }
-
-
-
-/*
-// 3 2 5 4 3
-index{0,0}
-mount[0]{3, 2}
-mount[2]{5}
-
-*/
