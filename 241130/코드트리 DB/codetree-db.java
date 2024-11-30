@@ -51,7 +51,7 @@ public class Main {
                         Long v = sumList.get(i);
                         sumList.set(i, v + value);
                     }
-                    
+
                     sb.append("1\n");
                 }
             }else if("delete".equals(query)){ // name의 row 삭제
@@ -86,7 +86,7 @@ public class Main {
                 int k = Integer.parseInt(stk.nextToken()); 
                 // k <= 1_000_000_000
 
-                int idx = Collections.binarySearch(list, k);
+                int idx = Collections.binarySearch(list, k + 1);
                 if(idx < 0) idx = -idx - 1;
                 
                 if(idx == 0) sb.append("0\n");
@@ -101,4 +101,4 @@ public class Main {
     }
 }
 
-// 9000 12000 18000 20000
+// 1000 9000 11000
