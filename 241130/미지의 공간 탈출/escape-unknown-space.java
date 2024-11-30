@@ -246,31 +246,31 @@ public class Main {
     private static void anomalyInfoSetting(){
         int T = 0;
         while(!anomalyQ.isEmpty()){
-            boolean[][] visit = new boolean[N][N];
+            boolean[][] totalVisit = new boolean[N][N];
             for(int i = 0; i < N; i++){
                 for(int j = 0; j < N; j++){
-                    visit[i][j] = anomalyMaps.get(T)[i][j];
+                    totalVisit[i][j] = anomalyMaps.get(T)[i][j];
                 }
             }
 
             int anomalyCnt = anomalyQ.size();
             while(anomalyCnt-- > 0){
                 Anomaly anomaly = anomalyQ.poll();
-                if(T % anomaly.u != 0) anomalyQ.add(anomaly);
+                if(T < anomaly.u || T % anomaly.u != 0) anomalyQ.add(anomaly);
                 else{
                     int nr = anomaly.r + dr[anomaly.d];
                     int nc = anomaly.c + dc[anomaly.d];
                     if(nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
                     if(anomaly.visit[nr][nc] || map[nr][nc] != 0) continue;
                     anomaly.visit[nr][nc] = true;
-                    visit[nr][nc] = true;
+                    totalVisit[nr][nc] = true;
 
                     Anomaly nxt = new Anomaly(nr,nc,anomaly.d, anomaly.u, anomaly.visit);
                     anomalyQ.add(nxt);
                 }
             }
 
-            anomalyMaps.add(visit);
+            anomalyMaps.add(totalVisit);
             T++;
         }
     }
