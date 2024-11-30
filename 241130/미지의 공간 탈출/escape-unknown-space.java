@@ -80,6 +80,9 @@ public class Main {
                 break;
             }  
 
+            boolean[][] anomalyMap = info.t >= anomalyMaps.size() 
+                ? anomalyMaps.get(anomalyMaps.size() - 1)
+                : anomalyMaps.get(info.t);
 
             // 시간의 벽위에 있는 경우
             if(info.wd >= 0){ // 동, 서, 남, 북, 윗
@@ -99,7 +102,7 @@ public class Main {
                         if(nr >= M && map[twOutside[info.wd][(M - 1 - info.c)][0]][twOutside[info.wd][(M - 1 - info.c)][1]] == 0){
                             nr = twOutside[info.wd][(M - 1 - info.c)][0];
                             nc = twOutside[info.wd][(M - 1 - info.c)][1];
-                            if(anomalyMaps.get(info.t)[nr][nc] || info.visit[nr][nc]) continue;
+                            if(anomalyMap[nr][nc] || info.visit[nr][nc]) continue;
                             info.visit[nr][nc] = true;
                             Info nxt = new Info(info.t + 1, nr, nc, -1, info.visit, info.twVisit);
                             pq.add(nxt);
@@ -127,7 +130,7 @@ public class Main {
                         if(nr >= M && map[twOutside[info.wd][info.c][0]][twOutside[info.wd][info.c][1]] == 0){
                             nr = twOutside[info.wd][info.c][0];
                             nc = twOutside[info.wd][info.c][1];
-                            if(anomalyMaps.get(info.t)[nr][nc] || info.visit[nr][nc]) continue;
+                            if(anomalyMap[nr][nc] || info.visit[nr][nc]) continue;
                             info.visit[nr][nc] = true;
                             Info nxt = new Info(info.t + 1, nr, nc, -1, info.visit, info.twVisit);
                             pq.add(nxt);
@@ -154,7 +157,7 @@ public class Main {
                         if(nr >= M&& map[twOutside[info.wd][info.c][0]][twOutside[info.wd][info.c][1]] == 0){
                             nr = twOutside[info.wd][info.c][0];
                             nc = twOutside[info.wd][info.c][1];
-                            if(anomalyMaps.get(info.t)[nr][nc] || info.visit[nr][nc]) continue;
+                            if(anomalyMap[nr][nc] || info.visit[nr][nc]) continue;
                             info.visit[nr][nc] = true;
                             Info nxt = new Info(info.t + 1, nr, nc, -1, info.visit, info.twVisit);
                             pq.add(nxt);
@@ -181,7 +184,7 @@ public class Main {
                         if(nr >= M && map[twOutside[info.wd][(M - 1 - info.c)][0]][twOutside[info.wd][(M - 1 - info.c)][1]] == 0){
                             nr = twOutside[info.wd][(M - 1 - info.c)][0];
                             nc = twOutside[info.wd][(M - 1 - info.c)][1];
-                            if(anomalyMaps.get(info.t)[nr][nc] || info.visit[nr][nc]) continue;
+                            if(anomalyMap[nr][nc] || info.visit[nr][nc]) continue;
                             info.visit[nr][nc] = true;
                             Info nxt = new Info(info.t + 1, nr, nc, -1, info.visit, info.twVisit);
                             pq.add(nxt);
@@ -241,7 +244,7 @@ public class Main {
                     int nr = info.r + dr[i];
                     int nc = info.c + dc[i];
                     if(nr < 0 || nr >= N || nc < 0 || nc >= N || map[nr][nc] == 1 || map[nr][nc] == 3) continue;
-                    if(anomalyMaps.get(info.t)[nr][nc] || info.visit[nr][nc]) continue;
+                    if(anomalyMap[nr][nc] || info.visit[nr][nc]) continue;
                     info.visit[nr][nc] = true;
                     Info nxt = new Info(info.t + 1, nr, nc, info.wd, info.visit, info.twVisit);
                     pq.add(nxt);
