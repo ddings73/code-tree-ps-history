@@ -68,17 +68,18 @@ public class Main {
                 result = info.t;
                 break;
             }  
-
-            boolean[][] anomalyMap = info.t >= anomalyMaps.size() 
+            
+            
+            boolean[][] anomalyMap = info.t + 1 >= anomalyMaps.size() 
                 ? anomalyMaps.get(anomalyMaps.size() - 1)
-                : anomalyMaps.get(info.t);
+                : anomalyMaps.get(info.t + 1);
 
             // 시간의 벽위에 있는 경우
             if(info.wd >= 0){ // 동, 서, 남, 북, 윗
                 for(int i = 0; i < 4; i++){
                     int nr = info.r + dr[i];
                     int nc = info.c + dc[i];
-                    
+                                
                     if(0 <= nr && nr < M && 0 <= nc && nc < M){
                         if(twVisit[info.wd][nr][nc] || timeWall[info.wd][nr][nc] == 1) continue;
                         twVisit[info.wd][nr][nc] = true;
@@ -86,7 +87,7 @@ public class Main {
                         pq.add(nxt);
                         continue;
                     }
-
+        
                     if(info.wd == 0){ // 동
                         if(nr >= M && map[twOutside[info.wd][(M - 1 - info.c)][0]][twOutside[info.wd][(M - 1 - info.c)][1]] == 0){
                             nr = twOutside[info.wd][(M - 1 - info.c)][0];
@@ -244,19 +245,19 @@ public class Main {
     }
 
     private static void anomalyInfoSetting(){
-        int T = 0;
+        int T = 1;
         while(!anomalyQ.isEmpty()){
             boolean[][] totalVisit = new boolean[N][N];
             for(int i = 0; i < N; i++){
                 for(int j = 0; j < N; j++){
-                    totalVisit[i][j] = anomalyMaps.get(T)[i][j];
+                    totalVisit[i][j] = anomalyMaps.get(T - 1)[i][j];
                 }
             }
 
             int anomalyCnt = anomalyQ.size();
             while(anomalyCnt-- > 0){
                 Anomaly anomaly = anomalyQ.poll();
-                if(T < anomaly.u || T % anomaly.u != 0) anomalyQ.add(anomaly);
+                if(T == 0 || T % anomaly.u != 0) anomalyQ.add(anomaly);
                 else{
                     int nr = anomaly.r + dr[anomaly.d];
                     int nc = anomaly.c + dc[anomaly.d];
@@ -269,7 +270,7 @@ public class Main {
                     anomalyQ.add(nxt);
                 }
             }
-
+            
             anomalyMaps.add(totalVisit);
             T++;
         }
