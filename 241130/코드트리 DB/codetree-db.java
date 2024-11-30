@@ -39,14 +39,7 @@ public class Main {
                     int idx = Collections.binarySearch(list, value);
                     if(idx < 0) idx = -idx - 1;
                     list.add(idx, value);
-                    
-                    if(idx == 0) sumList.add(idx, Long.valueOf(value));
-                    else sumList.add(idx, sumList.get(idx - 1) + value); 
-                    
-                    for(int i = idx + 1; i < sumList.size(); i++){
-                        Long v = sumList.get(i);
-                        sumList.set(i, v + value);
-                    }
+    
                     sb.append("1\n");
                 }
             }else if("delete".equals(query)){ // name의 row 삭제
@@ -61,11 +54,6 @@ public class Main {
                     if(idx < 0) idx = -idx - 1;
 
                     list.remove(idx);
-                    sumList.remove(idx);
-                    for(int i = idx; i < sumList.size(); i++){
-                        Long v = sumList.get(i);
-                        sumList.set(i, v - value);
-                    }
 
                     sb.append(value).append("\n");
                 }
@@ -87,7 +75,10 @@ public class Main {
                 
                 if(idx == 0) sb.append("0\n");
                 else{
-                    Long sum = sumList.get(idx - 1);
+                    Long sum = 0L;
+                    for(int i = 0; i < idx; i++){
+                        sum += list.get(i);
+                    }
                     sb.append(sum).append("\n");
                 }
             }
@@ -96,5 +87,3 @@ public class Main {
         System.out.println(sb.toString());
     }
 }
-
-// 2000 5000 17000
