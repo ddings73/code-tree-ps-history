@@ -7,7 +7,6 @@ public class Main {
     private static Map<String, Integer> map = new HashMap<>();
     private static Map<Integer, String> rMap = new HashMap<>();
 
-    private static Map<Integer, Integer> idxMap = new HashMap<>();
     private static List<Integer> list = new LinkedList<>();
     private static List<Long> sumList = new LinkedList<>();
 
@@ -25,7 +24,6 @@ public class Main {
                 map = new HashMap<>();
                 rMap = new HashMap<>();
 
-                idxMap = new HashMap<>();
                 list = new LinkedList<>();
                 sumList = new LinkedList<>();
             }else if("insert".equals(query)){ // row(name, value) 추가
@@ -40,8 +38,6 @@ public class Main {
 
                     int idx = Collections.binarySearch(list, value);
                     if(idx < 0) idx = -idx - 1;
-
-                    idxMap.put(value, idx);
                     list.add(idx, value);
                     
                     if(idx == 0) sumList.add(idx, Long.valueOf(value));
@@ -51,7 +47,6 @@ public class Main {
                         Long v = sumList.get(i);
                         sumList.set(i, v + value);
                     }
-
                     sb.append("1\n");
                 }
             }else if("delete".equals(query)){ // name의 row 삭제
@@ -62,8 +57,8 @@ public class Main {
                     map.remove(name);
                     rMap.remove(value);
 
-                    int idx = idxMap.get(value);
-                    idxMap.remove(value);
+                    int idx = Collections.binarySearch(list, value);
+                    if(idx < 0) idx = -idx - 1;
 
                     list.remove(idx);
                     sumList.remove(idx);
@@ -71,6 +66,7 @@ public class Main {
                         Long v = sumList.get(i);
                         sumList.set(i, v - value);
                     }
+
                     sb.append(value).append("\n");
                 }
             }else if("rank".equals(query)){ // k번째로 작은 value의 row name 출력
@@ -101,4 +97,4 @@ public class Main {
     }
 }
 
-// 1000 9000 11000
+// 2000 5000 17000
