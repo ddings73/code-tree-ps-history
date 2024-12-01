@@ -3,8 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    private static int Q, count;
-    private static String rankResult;
+    private static int Q;
 
     private static Map<String, Integer> map = new HashMap<>();
     private static Node root;
@@ -14,12 +13,14 @@ public class Main {
     private static class Node{
         String name;
         long value;
+        long count;
         Node left, right;
         Node(String name, int value){
             this.name = name;
             this.value = value;
-            left = null;
-            right = null;
+            this.count = 0L;
+            this.left = null;
+            this.right = null;
         }
     }
     
@@ -44,10 +45,8 @@ public class Main {
                 
                 if(map.containsKey(name) || query(root, 1, MAX, value, value) != 0L) sb.append("0\n");
                 else{
-                    long ret = update(root, 1, MAX, value, name, value);
-
+                    long ret = update(root, 1, MAX, value, name, value)[0];
                     map.put(name, value);
-
                     sb.append("1\n");
                 }
             }else if("delete".equals(query)){ // name의 row 삭제
@@ -66,11 +65,18 @@ public class Main {
                 // k <= 100_000
                 if(map.size() < k) sb.append("None\n");
                 else{
-                    count = 0;
-                    rankResult = null;
+                    Node node = root;
+                    while(node.count > k){
+                        long left_count = node.left != null ? node.left.count : 0L;
 
-                    seqQuery(root, 1, MAX, k);
-                    sb.append(rankResult).append("\n");
+                        if(left_count < k){
+                            k -= left_count;
+                            node = node.right;
+                        }else{
+                            node = node.left;
+                        }
+                    }
+                    sb.append(node.name).append("\n");
                 }
                 
             }else if("sum".equals(query)){ // k이하 value를 가진 모든 row들의 value 합 출력
@@ -85,24 +91,28 @@ public class Main {
         System.out.println(sb.toString());
     }
 
-    private static long update(Node node, int from, int to, int target, String name, int value){
-        if(target < from || to < target) return node.value;
+    private static long[] update(Node node, int from, int to, int target, String name, int value){
+        if(target < from || to < target) return new long[]{node.value, node.count};
         if(from == to){
             node.name = name;
             node.value = value;
-            return node.value;
+            node.count = 1L;
+            return new long[]{node.value, node.count};
         }
 
         int mid = (from + to) / 2;
 
         if(node.left == null) node.left = new Node(null, 0);
-        long left_value = update(node.left, from, mid, target, name, value);
+        long[] left_info = update(node.left, from, mid, target, name, value);
 
         if(node.right == null) node.right = new Node(null, 0);
-        long right_value = update(node.right, mid + 1, to, target, name, value);
+        long[] right_info = update(node.right, mid + 1, to, target, name, value);
 
-        node.value = left_value + right_value;
-        return node.value;
+        node.value = left_info[0] + right_info[0];
+        node.count = left_info[1] + right_info[1];
+        node.name = node.right.name != null ? node.right.name : node.left.name;
+
+        return new long[]{node.value, node.count};
     }
 
     private static long query(Node node, int from, int to, int start, int end){
@@ -117,22 +127,4 @@ public class Main {
 
         return sum;
     }
-
-    private static void seqQuery(Node node, int from, int to, int limit){
-        if(count >= limit || node.value == 0L) return;
-        if(from == to){
-            count++;
-            if(count == limit){
-                rankResult = node.name;
-            }
-
-            return;
-        }
-
-        int mid = (from + to) / 2;
-        if(node.left != null) seqQuery(node.left, from, mid, limit);
-        if(node.right != null) seqQuery(node.right, mid + 1, to, limit);
-    }
 }
-
-// 9000 12000 18000 20000
