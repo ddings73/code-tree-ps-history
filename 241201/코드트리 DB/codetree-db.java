@@ -7,7 +7,7 @@ public class Main {
 
     private static Map<String, Integer> map = new HashMap<>();
     private static Map<Integer, String> map2 = new HashMap<>();
-    private static TreeSet<Integer> set = new TreeSet<>();
+    private static LinkedList<Integer> list = new LinkedList<>();
     private static Node root;
     
     private static final int MAX = 1_000_000_000;
@@ -38,7 +38,7 @@ public class Main {
             if("init".equals(query)){ // 테이블 초기화
                 map = new HashMap<>();
                 map2 = new HashMap<>();
-                set = new TreeSet<>();
+                list = new LinkedList<>();
                 root = new Node(null, 0);
             }else if("insert".equals(query)){ // row(name, value) 추가
                 String name = stk.nextToken();
@@ -49,7 +49,10 @@ public class Main {
                 else{
                     long ret = update(root, 1, MAX, value, name, value);
                     
-                    set.add(value);
+                    int idx = Collections.binarySearch(list, value);
+                    if(idx < 0) idx = -idx - 1;
+                    list.add(idx, value);
+
                     map.put(name, value);
                     map2.put(value, name);
 
@@ -62,9 +65,13 @@ public class Main {
                     int value = map.get(name);
                     update(root, 1, MAX, value, null, 0);
                     
+                    
+                    int idx = Collections.binarySearch(list, value);
+                    if(idx < 0) idx = -idx - 1;
+                    list.remove(idx);
+
                     map.remove(name);
                     map2.remove(value);
-                    set.remove(value);
 
                     sb.append(value).append("\n");
                 }
@@ -73,7 +80,6 @@ public class Main {
                 // k <= 100_000
                 if(map.size() < k) sb.append("None\n");
                 else{
-                    List<Integer> list = new ArrayList<>(set);
                     int value = list.get(k - 1);
                     sb.append(map2.get(value)).append("\n");
                 }
