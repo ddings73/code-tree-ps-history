@@ -3,11 +3,10 @@ import java.io.*;
 
 public class Main {
 
-    private static int Q;
+    private static int Q, count;
+    private static String rankResult;
 
     private static Map<String, Integer> map = new HashMap<>();
-    private static Map<Integer, String> map2 = new HashMap<>();
-    private static LinkedList<Integer> list = new LinkedList<>();
     private static Node root;
     
     private static final int MAX = 1_000_000_000;
@@ -37,24 +36,17 @@ public class Main {
 
             if("init".equals(query)){ // 테이블 초기화
                 map = new HashMap<>();
-                map2 = new HashMap<>();
-                list = new LinkedList<>();
                 root = new Node(null, 0);
             }else if("insert".equals(query)){ // row(name, value) 추가
                 String name = stk.nextToken();
                 int value = Integer.parseInt(stk.nextToken());
                 // 중복되는 name과 value는 존재하지 않음
                 
-                if(map.containsKey(name) || map2.containsKey(value)) sb.append("0\n");
+                if(map.containsKey(name) || query(root, 1, MAX, value, value) != 0L) sb.append("0\n");
                 else{
                     long ret = update(root, 1, MAX, value, name, value);
-                    
-                    int idx = Collections.binarySearch(list, value);
-                    if(idx < 0) idx = -idx - 1;
-                    list.add(idx, value);
 
                     map.put(name, value);
-                    map2.put(value, name);
 
                     sb.append("1\n");
                 }
@@ -64,14 +56,8 @@ public class Main {
                 else{
                     int value = map.get(name);
                     update(root, 1, MAX, value, null, 0);
-                    
-                    
-                    int idx = Collections.binarySearch(list, value);
-                    if(idx < 0) idx = -idx - 1;
-                    list.remove(idx);
 
                     map.remove(name);
-                    map2.remove(value);
 
                     sb.append(value).append("\n");
                 }
@@ -80,8 +66,11 @@ public class Main {
                 // k <= 100_000
                 if(map.size() < k) sb.append("None\n");
                 else{
-                    int value = list.get(k - 1);
-                    sb.append(map2.get(value)).append("\n");
+                    count = 0;
+                    rankResult = null;
+
+                    seqQuery(root, 1, MAX, k);
+                    sb.append(rankResult).append("\n");
                 }
                 
             }else if("sum".equals(query)){ // k이하 value를 가진 모든 row들의 value 합 출력
@@ -127,6 +116,22 @@ public class Main {
         if(node.right != null) sum += query(node.right, mid + 1, to, start, end);
 
         return sum;
+    }
+
+    private static void seqQuery(Node node, int from, int to, int limit){
+        if(count >= limit || node.value == 0L) return;
+        if(from == to){
+            count++;
+            if(count == limit){
+                rankResult = node.name;
+            }
+
+            return;
+        }
+
+        int mid = (from + to) / 2;
+        if(node.left != null) seqQuery(node.left, from, mid, limit);
+        if(node.right != null) seqQuery(node.right, mid + 1, to, limit);
     }
 }
 
