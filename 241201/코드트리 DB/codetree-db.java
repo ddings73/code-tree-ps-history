@@ -45,7 +45,7 @@ public class Main {
                 
                 if(map.containsKey(name) || query(root, 1, MAX, value, value) != 0L) sb.append("0\n");
                 else{
-                    long ret = update(root, 1, MAX, value, name, value)[0];
+                    long ret = update(root, 1, MAX, value, name, value, 1)[0];
                     map.put(name, value);
                     sb.append("1\n");
                 }
@@ -54,7 +54,7 @@ public class Main {
                 if(!map.containsKey(name)) sb.append("0\n");
                 else{
                     int value = map.get(name);
-                    update(root, 1, MAX, value, null, 0);
+                    update(root, 1, MAX, value, null, 0, 0);
 
                     map.remove(name);
 
@@ -91,22 +91,22 @@ public class Main {
         System.out.println(sb.toString());
     }
 
-    private static long[] update(Node node, int from, int to, int target, String name, int value){
+    private static long[] update(Node node, int from, int to, int target, String name, int value, int count){
         if(target < from || to < target) return new long[]{node.value, node.count};
         if(from == to){
             node.name = name;
             node.value = value;
-            node.count = 1L;
+            node.count = count;
             return new long[]{node.value, node.count};
         }
 
         int mid = (from + to) / 2;
 
         if(node.left == null) node.left = new Node(null, 0);
-        long[] left_info = update(node.left, from, mid, target, name, value);
+        long[] left_info = update(node.left, from, mid, target, name, value, count);
 
         if(node.right == null) node.right = new Node(null, 0);
-        long[] right_info = update(node.right, mid + 1, to, target, name, value);
+        long[] right_info = update(node.right, mid + 1, to, target, name, value, count);
 
         node.value = left_info[0] + right_info[0];
         node.count = left_info[1] + right_info[1];
