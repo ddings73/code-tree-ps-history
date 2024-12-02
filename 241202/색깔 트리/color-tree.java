@@ -181,7 +181,9 @@ public class Main {
             changeSubTree(child, color);
             
             now.value += child.value;
-            now.colors.merge(color, 1, Integer::sum);
+            for(int key : child.colors.keySet()){
+                now.colors.merge(key, child.colors.get(key), Integer::sum);
+            }
         }
     }
 }
