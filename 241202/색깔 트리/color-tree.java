@@ -8,6 +8,7 @@ public class Main {
     private static List<Node> roots = new ArrayList<>();
     private static Node[] nodes = new Node[100_001];
     private static ArrayDeque<int[]> colorDQ = new ArrayDeque<>();
+    private static Set<Integer> ids;
 
     private static class Node{
         int m_id, p_id, color, max_depth, value;
@@ -68,6 +69,7 @@ public class Main {
                 colorDQ.addLast(new int[]{m_id, color});
             }else if(q == 300){
                 updateColorQuery();
+                
                 int m_id = Integer.parseInt(stk.nextToken());
                 sb.append(nodes[m_id].color).append("\n");
             }else if(q == 400){
@@ -116,26 +118,29 @@ public class Main {
     }
 
     private static void updateColorQuery(){
-        Set<Integer> ids = new HashSet<>();
+        ids = new HashSet<>();
         while(!colorDQ.isEmpty()){
             int[] info = colorDQ.pollLast();
             int m_id = info[0];
             int color = info[1];
 
             if(ids.contains(m_id)) continue;
-
-            ids.add(m_id);
-            ids.addAll(nodes[m_id].childIds);
             for(Node root : roots){
                 if(root.m_id == m_id || root.childIds.contains(m_id)){
                     changeColor(root, m_id, color, root.m_id == m_id);
                     break;
                 }
             }
+            
+            ids.add(m_id);
+            ids.addAll(nodes[m_id].childIds);
         }
     }
 
     private static void changeColor(Node now, int m_id, int color, boolean flag){
+        if(ids.contains(now.m_id))return;
+        
+
         now.colors = new HashSet<>();
         if(flag){
             now.color = color;
@@ -156,3 +161,4 @@ public class Main {
         now.value += (int)(Math.pow(now.colors.size(), 2));
     }
 }
+
