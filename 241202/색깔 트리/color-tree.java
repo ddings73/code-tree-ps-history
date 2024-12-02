@@ -6,6 +6,9 @@ public class Main {
     private static int Q;
     
     private static List<Node> roots = new ArrayList<>();
+    private static Node[] nodes = new Node[100_001];
+    private static ArrayDeque<int[]> colorDQ = new ArrayDeque<>();
+
     private static class Node{
         int m_id, p_id, color, max_depth, value;
         List<Node> childs;
@@ -17,8 +20,10 @@ public class Main {
             this.color = color;
             this.max_depth = max_depth;
             this.value = 1;
+            
             this.childs = new ArrayList<>();
             this.childIds = new HashSet<>();
+
             this.colors = new HashSet<>();
             this.colors.add(this.color);
         }
@@ -43,7 +48,10 @@ public class Main {
                 int color = Integer.parseInt(stk.nextToken());
                 int max_depth = Integer.parseInt(stk.nextToken());
 
+                updateColorQuery();
+                
                 Node node = new Node(m_id, p_id, color, max_depth);
+                nodes[m_id] = node;
                 if(p_id == -1) roots.add(node);
                 else{
                     for(Node root : roots){
@@ -57,25 +65,14 @@ public class Main {
                 int m_id = Integer.parseInt(stk.nextToken());
                 int color = Integer.parseInt(stk.nextToken());
 
-                for(Node root : roots){
-                    if(root.m_id == m_id || root.childIds.contains(m_id)){
-                        changeColor(root, m_id, color, root.m_id == m_id);
-                        break;
-                    }
-                }
+                colorDQ.addLast(new int[]{m_id, color});
             }else if(q == 300){
+                updateColorQuery();
                 int m_id = Integer.parseInt(stk.nextToken());
-
-                for(Node root : roots){
-                    if(root.m_id == m_id || root.childIds.contains(m_id)){
-                        int color = selectNode(root, m_id);
-                        sb.append(color).append("\n");
-                        break;
-                    }
-                }
+                sb.append(nodes[m_id].color).append("\n");
             }else if(q == 400){
+                updateColorQuery();
                 int value = 0;
-
                 for(Node root : roots){
                     value += root.value;
                 }
@@ -92,12 +89,11 @@ public class Main {
 
         if(now.m_id == newOne.p_id){
             now.insertChild(newOne);
-            now.colors.add(newOne.color);
 
-            now.value = (int)(Math.pow(now.colors.size(), 2));
-            for(Node child : now.childs){
-                now.value += child.value;
-            }
+            now.value -= (int)Math.pow(now.colors.size(), 2);
+            now.colors.add(newOne.color);
+            now.value += ((int)(Math.pow(now.colors.size(), 2)) + 1);
+            
             return true;
         }
 
@@ -119,6 +115,26 @@ public class Main {
         return result;
     }
 
+    private static void updateColorQuery(){
+        Set<Integer> ids = new HashSet<>();
+        while(!colorDQ.isEmpty()){
+            int[] info = colorDQ.pollLast();
+            int m_id = info[0];
+            int color = info[1];
+
+            if(ids.contains(m_id)) continue;
+
+            ids.add(m_id);
+            ids.addAll(nodes[m_id].childIds);
+            for(Node root : roots){
+                if(root.m_id == m_id || root.childIds.contains(m_id)){
+                    changeColor(root, m_id, color, root.m_id == m_id);
+                    break;
+                }
+            }
+        }
+    }
+
     private static void changeColor(Node now, int m_id, int color, boolean flag){
         now.colors = new HashSet<>();
         if(flag){
@@ -138,19 +154,5 @@ public class Main {
         }
         
         now.value += (int)(Math.pow(now.colors.size(), 2));
-    }
-
-    private static int selectNode(Node now, int m_id){
-        if(now.m_id == m_id) return now.color;
-
-        int ret = 0;
-        for(Node child : now.childs){
-            if(child.m_id == m_id || child.childIds.contains(m_id)){
-                ret = selectNode(child, m_id);
-                break;
-            }
-        }
-
-        return ret;
     }
 }
