@@ -16,7 +16,7 @@ public class Main {
             this.p_id = p_id;
             this.color = color;
             this.max_depth = max_depth;
-            this.value = 0;
+            this.value = 1;
             this.childs = new ArrayList<>();
             this.childIds = new HashSet<>();
             this.colors = new HashSet<>();
@@ -99,11 +99,17 @@ public class Main {
         if(now.m_id == newOne.p_id){
             now.insertChild(newOne);
             now.colors.add(newOne.color);
-            now.value = (int)Math.pow(now.colors.size(), 2) + 1;
+
+            now.value = (int)(Math.pow(now.colors.size(), 2));
+            for(Node child : now.childs){
+                now.value += child.value;
+            }
             return true;
         }
 
         boolean result = false;
+
+        now.value = 0;
         for(Node child : now.childs){
             if(child.m_id == newOne.p_id || child.childIds.contains(newOne.p_id)){
                 depth_map.put(child.m_id, child.max_depth);
@@ -111,32 +117,34 @@ public class Main {
                 if(result){
                     now.colors.add(newOne.color);
                     now.childIds.add(newOne.m_id);
-                    now.value = (int)Math.pow(now.colors.size(), 2) + child.value;
                 }
-                break;
             }
+            now.value += child.value;
         }
+
+        now.value += (int)(Math.pow(now.colors.size(), 2));
         return result;
     }
 
-    private static Set<Integer> changeColor(Node now, int m_id, int color, boolean flag){
+    private static void changeColor(Node now, int m_id, int color, boolean flag){
         now.colors = new HashSet<>();
         if(flag){
             now.color = color;
             now.colors.add(color);
-            now.value = 1;
         }else{
             now.colors.add(now.color);
         }
         
+        now.value = 0;
         for(Node child : now.childs){
             if(flag || child.m_id == m_id || child.childIds.contains(m_id)){
-                now.colors.addAll(changeColor(child, m_id, color, flag || child.m_id == m_id));
-                now.value = (int)Math.pow(now.colors.size() , 2) + child.value;
+                changeColor(child, m_id, color, flag || child.m_id == m_id);
             }
+            now.value += child.value;
+            now.colors.addAll(child.colors);
         }
-
-        return now.colors;
+        
+        now.value += (int)(Math.pow(now.colors.size(), 2));
     }
 
     private static int selectNode(Node now, int m_id){
