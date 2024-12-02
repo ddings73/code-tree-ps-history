@@ -14,7 +14,7 @@ public class Main {
         int m_id, p_id, color, max_depth, value;
         List<Node> childs;
         Set<Integer> childIds;
-        Set<Integer> colors;
+        Map<Integer, Integer> colors;
         Node(int m_id, int p_id, int color, int max_depth){
             this.m_id = m_id;
             this.p_id = p_id;
@@ -25,8 +25,8 @@ public class Main {
             this.childs = new ArrayList<>();
             this.childIds = new HashSet<>();
 
-            this.colors = new HashSet<>();
-            this.colors.add(this.color);
+            this.colors = new HashMap<>();
+            this.colors.put(this.color, 1);
         }
 
         void insertChild(Node child){
@@ -85,7 +85,6 @@ public class Main {
         System.out.println(sb.toString());
     }
 
-    // max_depth => 현재 노드에서 부터의 최대 깊이( 1부터 시작 )
     private static boolean insertNode(Node now, Node newOne, int max_depth){
         if(--max_depth == 0) return false;
 
@@ -93,7 +92,7 @@ public class Main {
             now.insertChild(newOne);
 
             now.value -= (int)Math.pow(now.colors.size(), 2);
-            now.colors.add(newOne.color);
+            now.colors.merge(newOne.color, 1, Integer::sum);
             now.value += ((int)(Math.pow(now.colors.size(), 2)) + 1);
             
             return true;
@@ -106,7 +105,7 @@ public class Main {
             if(child.m_id == newOne.p_id || child.childIds.contains(newOne.p_id)){
                 result = insertNode(child, newOne, Math.min(max_depth, child.max_depth));
                 if(result){
-                    now.colors.add(newOne.color);
+                    now.colors.merge(newOne.color, 1, Integer::sum);
                     now.childIds.add(newOne.m_id);
                 }
             }
@@ -125,40 +124,65 @@ public class Main {
             int color = info[1];
 
             if(ids.contains(m_id)) continue;
-            for(Node root : roots){
-                if(root.m_id == m_id || root.childIds.contains(m_id)){
-                    changeColor(root, m_id, color, root.m_id == m_id);
-                    break;
-                }
-            }
+
+            int tmp_value = nodes[m_id].value;
+            int p_id = nodes[m_id].p_id;
+
+            Map<Integer, Integer> map = new HashMap<>(nodes[m_id].colors);
             
+            changeSubTree(nodes[m_id], color);
+
+            int id = m_id;
+            while(p_id != -1){
+                Node parent = nodes[p_id];
+                Map<Integer, Integer> tMap = new HashMap<>(parent.colors);
+
+                // -parent의 컬러 수 제곱 -tmp_value + 바뀐 parent의 컬러 수 제곱
+                int minus_value = tmp_value + (int)Math.pow(parent.colors.size(), 2);
+
+                for(int key : map.keySet()){
+                    int value = map.get(key);
+                    int v = parent.colors.get(key);
+
+                    if(value == v) parent.colors.remove(key);
+                    else parent.colors.put(key, v - value);
+                } 
+                
+
+                for(int key : nodes[id].colors.keySet()){
+                    parent.colors.merge(key, nodes[id].colors.get(key), Integer::sum);
+                }
+                
+                int plus_value = nodes[id].value + (int)Math.pow(parent.colors.size(), 2);
+                int new_value = parent.value + plus_value - minus_value;
+
+                tmp_value = parent.value;
+                parent.value = new_value;
+
+                id = parent.m_id;
+                p_id = parent.p_id;
+                map = tMap;
+            }
+
             ids.add(m_id);
             ids.addAll(nodes[m_id].childIds);
         }
     }
 
-    private static void changeColor(Node now, int m_id, int color, boolean flag){
+    private static void changeSubTree(Node now, int color){
         if(ids.contains(now.m_id))return;
-        
 
-        now.colors = new HashSet<>();
-        if(flag){
-            now.color = color;
-            now.colors.add(color);
-        }else{
-            now.colors.add(now.color);
-        }
+        now.colors = new HashMap<>();
+        now.color = color;
+        now.colors.put(color, 1);
         
-        now.value = 0;
+        now.value = 1;
         for(Node child : now.childs){
-            if(flag || child.m_id == m_id || child.childIds.contains(m_id)){
-                changeColor(child, m_id, color, flag || child.m_id == m_id);
-            }
+            changeSubTree(child, color);
+            
             now.value += child.value;
-            now.colors.addAll(child.colors);
+            now.colors.merge(color, 1, Integer::sum);
         }
-        
-        now.value += (int)(Math.pow(now.colors.size(), 2));
     }
 }
 
