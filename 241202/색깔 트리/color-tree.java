@@ -48,9 +48,7 @@ public class Main {
                 else{
                     for(Node root : roots){
                         if(root.m_id == p_id || root.childIds.contains(p_id)){
-                            Map<Integer, Integer> map = new HashMap<>();
-                            map.put(root.m_id, root.max_depth);
-                            insertNode(root, node, map);
+                            insertNode(root, node, root.max_depth);
                             break;
                         }
                     }
@@ -89,12 +87,8 @@ public class Main {
     }
 
     // max_depth => 현재 노드에서 부터의 최대 깊이( 1부터 시작 )
-    private static boolean insertNode(Node now, Node newOne, Map<Integer, Integer> depth_map){
-        for(Integer m_id : depth_map.keySet()){
-            Integer value = depth_map.get(m_id);
-            if(value == 1) return false;
-            depth_map.replace(m_id, value - 1);
-        }
+    private static boolean insertNode(Node now, Node newOne, int max_depth){
+        if(--max_depth == 0) return false;
 
         if(now.m_id == newOne.p_id){
             now.insertChild(newOne);
@@ -112,8 +106,7 @@ public class Main {
         now.value = 0;
         for(Node child : now.childs){
             if(child.m_id == newOne.p_id || child.childIds.contains(newOne.p_id)){
-                depth_map.put(child.m_id, child.max_depth);
-                result = insertNode(child, newOne, depth_map);
+                result = insertNode(child, newOne, Math.min(max_depth, child.max_depth));
                 if(result){
                     now.colors.add(newOne.color);
                     now.childIds.add(newOne.m_id);
