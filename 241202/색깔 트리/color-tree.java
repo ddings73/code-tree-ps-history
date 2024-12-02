@@ -7,7 +7,7 @@ public class Main {
     
     private static List<Node> roots = new ArrayList<>();
     private static class Node{
-        int m_id, p_id, color, max_depth;
+        int m_id, p_id, color, max_depth, value;
         List<Node> childs;
         Set<Integer> childIds;
         Set<Integer> colors;
@@ -16,6 +16,7 @@ public class Main {
             this.p_id = p_id;
             this.color = color;
             this.max_depth = max_depth;
+            this.value = 0;
             this.childs = new ArrayList<>();
             this.childIds = new HashSet<>();
             this.colors = new HashSet<>();
@@ -78,7 +79,7 @@ public class Main {
                 int value = 0;
 
                 for(Node root : roots){
-                    value += getValueOfTree(root);
+                    value += root.value;
                 }
 
                 sb.append(value).append("\n");
@@ -98,6 +99,7 @@ public class Main {
         if(now.m_id == newOne.p_id){
             now.insertChild(newOne);
             now.colors.add(newOne.color);
+            now.value = (int)Math.pow(now.colors.size(), 2) + 1;
             return true;
         }
 
@@ -106,13 +108,13 @@ public class Main {
             if(child.m_id == newOne.p_id || child.childIds.contains(newOne.p_id)){
                 depth_map.put(child.m_id, child.max_depth);
                 result = insertNode(child, newOne, depth_map);
+                if(result){
+                    now.colors.add(newOne.color);
+                    now.childIds.add(newOne.m_id);
+                    now.value = (int)Math.pow(now.colors.size(), 2) + child.value;
+                }
                 break;
             }
-        }
-
-        if(result){
-            now.colors.add(newOne.color);
-            now.childIds.add(newOne.m_id);
         }
         return result;
     }
@@ -122,12 +124,16 @@ public class Main {
         if(flag){
             now.color = color;
             now.colors.add(color);
+            now.value = 1;
         }else{
             now.colors.add(now.color);
         }
         
         for(Node child : now.childs){
-            now.colors.addAll(changeColor(child, m_id, color, flag || child.m_id == m_id));
+            if(flag || child.m_id == m_id || child.childIds.contains(m_id)){
+                now.colors.addAll(changeColor(child, m_id, color, flag || child.m_id == m_id));
+                now.value = (int)Math.pow(now.colors.size() , 2) + child.value;
+            }
         }
 
         return now.colors;
@@ -145,13 +151,5 @@ public class Main {
         }
 
         return ret;
-    }
-
-    private static int getValueOfTree(Node now){
-        int value = (int)Math.pow(now.colors.size(), 2);
-        for(Node child : now.childs){
-            value += getValueOfTree(child);
-        }
-        return value;
     }
 }
