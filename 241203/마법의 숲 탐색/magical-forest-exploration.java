@@ -118,10 +118,12 @@ public class Main {
     }
 
     private static boolean westCheck(int r, int c, int[][] visit){
+        if(r < 0 && r + 1 < 0) return false;
         return 0 <= c - 2 && ( r < 0 || visit[r][c - 2] == 0 ) && ( r - 1 < 0 || visit[r - 1][c - 1] == 0 ) && visit[r + 1][c - 1] == 0;
     }
 
     private static boolean eastCheck(int r, int c, int[][] visit){
+        if(r < 0 && r + 1 < 0) return false;
         return c + 2 < C && ( r < 0 || visit[r][c + 2] == 0 ) && ( r - 1 < 0 || visit[r - 1][c + 1] == 0 ) && visit[r + 1][c + 1] == 0;
     }
 }
