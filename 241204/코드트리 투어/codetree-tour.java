@@ -16,7 +16,6 @@ public class Main {
 
     private static int[] costs;
     private static List<List<int[]>> list = new ArrayList<>();
-    // private static Map<Integer, ITEM> items = new HashMap<>();
 
     private static Node root;
 
@@ -38,7 +37,7 @@ public class Main {
         }
 
         private void copyValue(Node node){
-            this.id = node.id;
+            this.id = node.cost == -1 ? -1 : node.id;
             this.cost = node.cost;
             this.revenue = node.revenue;
             this.dest = node.dest;
@@ -60,10 +59,8 @@ public class Main {
                 int id = Integer.parseInt(stk.nextToken());
                 int revenue = Integer.parseInt(stk.nextToken());
                 int dest = Integer.parseInt(stk.nextToken());
-                int cost = costs[dest] == -1 || costs[dest] > revenue 
-                    ? -1
+                int cost = costs[dest] == -1 || costs[dest] > revenue ? -1
                     : revenue - costs[dest];
-
                 Node node = new Node(id, cost, revenue, dest);
                 update(root, 1, 30000, id, id, node);
             }else if(q == 300){
@@ -125,8 +122,7 @@ public class Main {
     private static Node rework(Node node, int from, int to){
         if(from == to){
             if(node.dest != -1){
-                node.cost = costs[node.dest] == -1 || costs[node.dest] > node.revenue
-                    ? -1
+                node.cost = costs[node.dest] == -1 || costs[node.dest] > node.revenue ? -1
                     : node.revenue - costs[node.dest];
             } 
             return node;
