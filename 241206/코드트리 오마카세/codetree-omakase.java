@@ -1,21 +1,16 @@
 import java.util.*;
 import java.io.*;
 
-/*
-사람이 들어왔다면, 레일위의 대상 초밥들이 먹히는 시점이 정해짐
-
-*/
 public class Main {
     private static int L, Q;
-    private static Map<String, ArrayDeque<Sushi>> sushi_map = new HashMap<>();
+    private static Map<String, Queue<Sushi>> sushi_map = new HashMap<>();
     private static Map<String, int[]> people = new HashMap<>();
 
     private static class Sushi{
-        int t, x, cnt;
+        int t, x;
         Sushi(int t, int x){
             this.t = t;
             this.x = x;
-            this.cnt = 1;
         }
     }
 
@@ -37,23 +32,11 @@ public class Main {
                 int x = Integer.parseInt(stk.nextToken());
                 String name = stk.nextToken();
 
-                if(people.containsKey(name)){
-                    int[] info = people.get(name);
-                    if(info[0] == x){
-                        info[1]--;
-                        if(info[1] == 0){
-                            people.remove(name);
-                        }
-                        continue;
-                    }
-                }
-
                 if(sushi_map.containsKey(name)){
-                    ArrayDeque<Sushi> q = sushi_map.get(name);
-                    if(!q.isEmpty() && q.peekLast().x == x) q.peekLast().cnt++;
-                    else q.add(new Sushi(t, x));
+                    Queue<Sushi> q = sushi_map.get(name);
+                    q.add(new Sushi(t, x));
                 }else{
-                    ArrayDeque<Sushi> q = new ArrayDeque<>();
+                    Queue<Sushi> q = new ArrayDeque<>();
                     q.add(new Sushi(t, x));
                     sushi_map.put(name, q);
                 }
@@ -64,68 +47,59 @@ public class Main {
                 String name = stk.nextToken();
                 int n = Integer.parseInt(stk.nextToken());
                 
-                if(sushi_map.containsKey(name)){
-                    ArrayDeque<Sushi> q = sushi_map.get(name);
-                    int sushi_cnt = q.size();
-                    while(sushi_cnt-- > 0){
-                        Sushi s = q.poll();
-
-                        int time = t - s.t;
-                        int pos = (s.x + time) % L;
-                        if(pos != x){
-                            s.t = t;
-                            s.x = pos;
-                            if(!q.isEmpty() && q.peekLast().x == s.x) q.peekLast().cnt++;
-                            else q.add(s);
-                        }else n--;
-                    }
-                }
-
-                if(n == 0) continue;
-                people.put(name, new int[]{x, n});
+                people.put(name, new int[]{x, n, t});
             }else if(query == 300){
-                // t 시각의 사람 수 와 초밥 수 출력
+                // t 시각의 사람 수와 초밥 수 출력
                 int t = Integer.parseInt(stk.nextToken());
 
-                Set<String> keySet = new HashSet<>(people.keySet());
-                for(String name : keySet){
+                Map<String, int[]> new_people = new HashMap<>();
+                for(String name : people.keySet()){
                     int[] info = people.get(name);
+                    int people_pos = info[0];
+                    int people_eat = info[1];
+                    int people_entry = info[2];
 
-                    if(!sushi_map.containsKey(name)) continue;
-                    
-                    ArrayDeque<Sushi> q = sushi_map.get(name);
-                    int sushi_cnt = q.size();
-                    while(sushi_cnt-- > 0){
+                    if(!sushi_map.containsKey(name)){
+                        new_people.put(name, new int[]{people_pos, people_eat, people_entry});
+                        continue;
+                    }
+
+                    Queue<Sushi> q = sushi_map.get(name);
+                    Queue<Sushi> new_q = new ArrayDeque<>();
+                    while(!q.isEmpty()){
                         Sushi s = q.poll();
-
-                        int time = t - s.t;
-                        if(time >= L) info[1] -= s.cnt;
-                        else{
-                            int p_pos = info[0];
-                            if(p_pos < s.x) p_pos += L; 
-                            if(s.x <= p_pos && p_pos <= (s.x + time)) info[1] -= s.cnt;
-                            else{
-                                s.t = t;
-                                s.x = (s.x + time) % L;
-                                if(!q.isEmpty() && q.peekLast().x == s.x) q.peekLast().cnt++;
-                                else q.add(s);
+                        // 사람 입장 전에 나온 초밥이라면
+                        if(s.t < people_entry){
+                            s.x = (s.x + people_entry - s.t) % L;
+                            s.t = people_entry;
+                            if(s.x == people_pos){
+                                people_eat--;
+                                continue;
                             }
                         }
 
+                        int new_s_pos = (s.x + t - s.t);
+                        int p_dummy = people_pos < s.x ? people_pos + L : people_pos;
+                        if(s.x <= p_dummy && p_dummy <= new_s_pos) people_eat--;
+                        else{
+                            s.t = t;
+                            s.x = new_s_pos % L;
+                            new_q.add(s);
+                        }
 
-                        if(info[1] == 0) people.remove(name);
                     }
+
+                    if(!new_q.isEmpty()) sushi_map.put(name, new_q);
+                    else sushi_map.remove(name);
+
+                    if(people_eat > 0) new_people.put(name, new int[]{people_pos, people_eat, people_entry});
                 }
+
+                people = new_people;
                 
-                int sushi_cnt = 0;
-                for(String name : sushi_map.keySet()){
-                    ArrayDeque<Sushi> q = sushi_map.get(name);
-                    for(Sushi sushi : q){
-                        sushi_cnt += sushi.cnt;
-                    }
-                }
-
-                sb.append(people.size()).append(" ").append(sushi_cnt).append("\n");
+                int sum = 0;
+                for(Queue<Sushi> q : sushi_map.values()) sum += q.size();
+                sb.append(people.size()).append(" ").append(sum).append("\n");
             }
         }
 
