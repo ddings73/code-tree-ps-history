@@ -86,28 +86,25 @@ public class Main {
                         continue;
                     }
 
-
                     int[] info = people.get(s.name);
 
-                    if(s.x == info[0]) info[1]--;
-                    else {
-                        int time = t - s.t;
-                        if(time >= L) info[1]--;
+                    int time = t - s.t;
+                    if(time >= L) info[1]--;
+                    else{
+                        int p_pos = info[0];
+                        if(p_pos < s.x) p_pos += L; 
+                        if(s.x <= p_pos && p_pos <= (s.x + time)) info[1]--;
                         else{
-                            int pos = (s.x + time) % L;
-                            if(info[0] <= pos) info[1]--;
-                            else{
-                                s.t = t;
-                                s.x = pos;
-                                sushi.add(s);
-                            }
+                            s.t = t;
+                            s.x = (s.x + time) % L;
+                            sushi.add(s);
                         }
                     }
 
 
                     if(info[1] == 0) people.remove(s.name);
                 }
-                
+
                 sb.append(people.size()).append(" ").append(sushi.size()).append("\n");
             }
         }
