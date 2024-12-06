@@ -7,7 +7,7 @@ import java.io.*;
 */
 public class Main {
     private static int L, Q;
-    private static Map<String, List<Sushi>> sushi_map = new HashMap<>();
+    private static Map<String, LinkedList<Sushi>> sushi_map = new HashMap<>();
     private static Map<String, int[]> people = new HashMap<>();
 
     private static class Sushi{
@@ -53,10 +53,12 @@ public class Main {
 
                 if(sushi_map.containsKey(name)){
                     List<Sushi> list = sushi_map.get(name);
-                    list.add(new Sushi(t, x));
-                    Collections.sort(list, (o1, o2)->Integer.compare(o1.t, o2.t));
+                    Sushi sushi = new Sushi(t, x);
+                    int idx = Collections.binarySearch(list, sushi, Comparator.comparingInt(Sushi::getT));
+                    if(idx < 0) idx = -idx - 1;
+                    list.add(idx, sushi);
                 }else{
-                    List<Sushi> list = new ArrayList<>();
+                    LinkedList<Sushi> list = new LinkedList<>();
                     list.add(new Sushi(t, x));
                     sushi_map.put(name, list);
                 }
@@ -69,7 +71,7 @@ public class Main {
                 
                 if(sushi_map.containsKey(name)){
                     List<Sushi> list = sushi_map.get(name);
-                    List<Sushi> new_list = new ArrayList<>();
+                    LinkedList<Sushi> new_list = new LinkedList<>();
                     for(Sushi s : list){
                         int time = t - s.t;
                         int pos = (s.x + time) % L;
@@ -102,7 +104,7 @@ public class Main {
                     info[1] -= idx;
 
                     list = list.subList(idx, list.size());
-                    List<Sushi> new_list = new ArrayList<>();
+                    LinkedList<Sushi> new_list = new LinkedList<>();
                     for(Sushi s : list){
                         int time = t - s.t;
                         int p_pos = info[0];
