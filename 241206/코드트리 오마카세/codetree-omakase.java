@@ -61,19 +61,21 @@ public class Main {
                 int x = Integer.parseInt(stk.nextToken());
                 String name = stk.nextToken();
                 int n = Integer.parseInt(stk.nextToken());
+                
+                if(sushi_map.containsKey(name)){
+                    Queue<Sushi> q = sushi_map.get(name);
+                    int sushi_cnt = q.size();
+                    while(sushi_cnt-- > 0){
+                        Sushi s = q.poll();
 
-                Queue<Sushi> q = sushi_map.get(name);
-                int sushi_cnt = q.size();
-                while(sushi_cnt-- > 0){
-                    Sushi s = q.poll();
-
-                    int time = t - s.t;
-                    int pos = (s.x + time) % L;
-                    if(pos != x){
-                        s.t = t;
-                        s.x = pos;
-                        q.add(s);
-                    }else n--;
+                        int time = t - s.t;
+                        int pos = (s.x + time) % L;
+                        if(pos != x){
+                            s.t = t;
+                            s.x = pos;
+                            q.add(s);
+                        }else n--;
+                    }
                 }
 
                 if(n == 0) continue;
