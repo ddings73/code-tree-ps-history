@@ -7,8 +7,7 @@ import java.io.*;
 */
 public class Main {
     private static int L, Q;
-    private static Queue<Sushi> sushi = new ArrayDeque<>();
-    private static Map<String, Queue<Sushi>> sushi_map = new HashMap<>();
+    private static Map<String, List<Sushi>> sushi_map = new HashMap<>();
     private static Map<String, int[]> people = new HashMap<>();
 
     private static class Sushi{
@@ -16,6 +15,10 @@ public class Main {
         Sushi(int t, int x){
             this.t = t;
             this.x = x;
+        }
+
+        public int getT(){
+            return this.t;
         }
     }
 
@@ -49,11 +52,13 @@ public class Main {
                 }
 
                 if(sushi_map.containsKey(name)){
-                    sushi_map.get(name).add(new Sushi(t, x));
+                    List<Sushi> list = sushi_map.get(name);
+                    list.add(new Sushi(t, x));
+                    Collections.sort(list, (o1, o2)->Integer.compare(o1.t, o2.t));
                 }else{
-                    Queue<Sushi> q = new ArrayDeque<>();
-                    q.add(new Sushi(t, x));
-                    sushi_map.put(name, q);
+                    List<Sushi> list = new ArrayList<>();
+                    list.add(new Sushi(t, x));
+                    sushi_map.put(name, list);
                 }
             }else if(query == 200){
                 // name인 사람이 t 시각에 x 위치에서 n개 초밥 제거 ( 자신의 name과 동일해야 함 )
@@ -63,19 +68,19 @@ public class Main {
                 int n = Integer.parseInt(stk.nextToken());
                 
                 if(sushi_map.containsKey(name)){
-                    Queue<Sushi> q = sushi_map.get(name);
-                    int sushi_cnt = q.size();
-                    while(sushi_cnt-- > 0){
-                        Sushi s = q.poll();
-
+                    List<Sushi> list = sushi_map.get(name);
+                    List<Sushi> new_list = new ArrayList<>();
+                    for(Sushi s : list){
                         int time = t - s.t;
                         int pos = (s.x + time) % L;
                         if(pos != x){
                             s.t = t;
                             s.x = pos;
-                            q.add(s);
+                            new_list.add(s);
                         }else n--;
                     }
+                    
+                    sushi_map.replace(name, new_list);
                 }
 
                 if(n == 0) continue;
@@ -90,27 +95,28 @@ public class Main {
 
                     if(!sushi_map.containsKey(name)) continue;
                     
-                    Queue<Sushi> q = sushi_map.get(name);
-                    int sushi_cnt = q.size();
-                    while(sushi_cnt-- > 0){
-                        Sushi s = q.poll();
+                    List<Sushi> list = sushi_map.get(name);
+                    int idx = Collections.binarySearch(list, new Sushi(t - L, -1), Comparator.comparingInt(Sushi::getT));
+                    if(idx < 0) idx = -idx - 1;
 
+                    info[1] -= idx;
+
+                    list = list.subList(idx, list.size());
+                    List<Sushi> new_list = new ArrayList<>();
+                    for(Sushi s : list){
                         int time = t - s.t;
-                        if(time >= L) info[1]--;
+                        int p_pos = info[0];
+                        if(p_pos < s.x) p_pos += L; 
+                        if(s.x <= p_pos && p_pos <= (s.x + time)) info[1]--;
                         else{
-                            int p_pos = info[0];
-                            if(p_pos < s.x) p_pos += L; 
-                            if(s.x <= p_pos && p_pos <= (s.x + time)) info[1]--;
-                            else{
-                                s.t = t;
-                                s.x = (s.x + time) % L;
-                                q.add(s);
-                            }
+                            s.t = t;
+                            s.x = (s.x + time) % L;
+                            new_list.add(s);
                         }
 
-
-                        if(info[1] == 0) people.remove(name);
                     }
+                    if(info[1] == 0) people.remove(name);
+                    sushi_map.replace(name, new_list);
                 }
                 
                 int sushi_cnt = 0;
