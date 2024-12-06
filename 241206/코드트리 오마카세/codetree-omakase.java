@@ -7,8 +7,17 @@ import java.io.*;
 */
 public class Main {
     private static int L, Q;
-    private static Map<String, Map<Integer, int[]>> sushi_map = new HashMap<>();
+    private static Map<String, ArrayDeque<Sushi>> sushi_map = new HashMap<>();
     private static Map<String, int[]> people = new HashMap<>();
+
+    private static class Sushi{
+        int t, x, cnt;
+        Sushi(int t, int x){
+            this.t = t;
+            this.x = x;
+            this.cnt = 1;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -31,65 +40,22 @@ public class Main {
                 if(people.containsKey(name)){
                     int[] info = people.get(name);
                     if(info[0] == x){
-                        if(--info[1] == 0) people.remove(name);
+                        info[1]--;
+                        if(info[1] == 0){
+                            people.remove(name);
+                        }
                         continue;
                     }
+                }
 
-                    if(!sushi_map.containsKey(name) || sushi_map.get(name).size() == 0){
-                        Map<Integer, int[]> map = new HashMap<>();
-                        map.put(x, new int[]{t, 1});
-                        sushi_map.put(name, map);
-                    }else{
-                        Map<Integer, int[]> map = sushi_map.get(name);
-                        Map<Integer, int[]> new_map = new HashMap<>();
-                        new_map.put(x, new int[]{t, 1});
-                        for(int pos : map.keySet()){
-                            int[] sushi = map.get(pos);
-                            int time = t - sushi[0];
-                            if(time >= L) info[1] -= sushi[1];
-                            else{
-                                int new_pos = (pos + time);
-                                int p_pos = info[0] < pos ? info[0] + L : info[0];
-                                if(pos <= p_pos && p_pos <= new_pos) info[1] -= sushi[1];
-                                else{
-                                    new_pos %= L;
-                                    if(new_map.containsKey(new_pos)){
-                                        int[] savedSushi = new_map.get(new_pos);
-                                        savedSushi[1] += sushi[1];
-                                        new_map.put(new_pos, savedSushi);
-                                    }else{
-                                        new_map.put(new_pos, new int[]{t, sushi[1]});
-                                    }
-                                }
-                            }
-
-                        }
-                        if(info[1] == 0) people.remove(name);
-                        sushi_map.put(name, new_map);
-                    }
-                }else {
-                    if (sushi_map.containsKey(name)) {
-                        Map<Integer, int[]> map = sushi_map.get(name);
-                        Map<Integer, int[]> new_map = new HashMap<>();
-                        new_map.put(x, new int[]{t, 1});
-                        for (int pos : map.keySet()) {
-                            int[] sushi = map.get(pos);
-
-                            int new_pos = (pos + (t - sushi[0])) % L;
-                            if (new_map.containsKey(new_pos)) {
-                                int[] savedSushi = new_map.get(new_pos);
-                                savedSushi[1] += sushi[1];
-                                new_map.put(new_pos, savedSushi);
-                            } else {
-                                new_map.put(new_pos, new int[]{t, sushi[1]});
-                            }
-                        }
-                        sushi_map.put(name, new_map);
-                    } else {
-                        Map<Integer, int[]> map = new HashMap<>();
-                        map.put(x, new int[]{t, 1});
-                        sushi_map.put(name, map);
-                    }
+                if(sushi_map.containsKey(name)){
+                    ArrayDeque<Sushi> q = sushi_map.get(name);
+                    if(!q.isEmpty() && q.peekLast().x == x) q.peekLast().cnt++;
+                    else q.add(new Sushi(t, x));
+                }else{
+                    ArrayDeque<Sushi> q = new ArrayDeque<>();
+                    q.add(new Sushi(t, x));
+                    sushi_map.put(name, q);
                 }
             }else if(query == 200){
                 // name인 사람이 t 시각에 x 위치에서 n개 초밥 제거 ( 자신의 name과 동일해야 함 )
@@ -97,25 +63,22 @@ public class Main {
                 int x = Integer.parseInt(stk.nextToken());
                 String name = stk.nextToken();
                 int n = Integer.parseInt(stk.nextToken());
-
+                
                 if(sushi_map.containsKey(name)){
-                    Map<Integer, int[]> map = sushi_map.get(name);
-                    Map<Integer, int[]> new_map = new HashMap<>();
-                    for(int pos : map.keySet()){
-                        int[] sushi = map.get(pos);
-                        int new_pos = (pos + (t - sushi[0])) % L;
-                        if(new_pos != x){
-                            if(new_map.containsKey(new_pos)){
-                                int[] savedSushi = new_map.get(new_pos);
-                                savedSushi[1] += sushi[1];
-                                new_map.put(new_pos, savedSushi);
-                            }else{
-                                new_map.put(new_pos, new int[]{t, sushi[1]});
-                            }
-                        }else n -= sushi[1];
-                    }
+                    ArrayDeque<Sushi> q = sushi_map.get(name);
+                    int sushi_cnt = q.size();
+                    while(sushi_cnt-- > 0){
+                        Sushi s = q.poll();
 
-                    sushi_map.put(name, new_map);
+                        int time = t - s.t;
+                        int pos = (s.x + time) % L;
+                        if(pos != x){
+                            s.t = t;
+                            s.x = pos;
+                            if(!q.isEmpty() && q.peekLast().x == s.x) q.peekLast().cnt++;
+                            else q.add(s);
+                        }else n--;
+                    }
                 }
 
                 if(n == 0) continue;
@@ -128,39 +91,37 @@ public class Main {
                 for(String name : keySet){
                     int[] info = people.get(name);
 
-                    if(!sushi_map.containsKey(name) || sushi_map.get(name).size() == 0) continue;
+                    if(!sushi_map.containsKey(name)) continue;
+                    
+                    ArrayDeque<Sushi> q = sushi_map.get(name);
+                    int sushi_cnt = q.size();
+                    while(sushi_cnt-- > 0){
+                        Sushi s = q.poll();
 
-                    Map<Integer, int[]> map = sushi_map.get(name);
-                    Map<Integer, int[]> new_map = new HashMap<>();
-                    for(int pos : map.keySet()){
-                        int[] sushi = map.get(pos);
-                        int time = t - sushi[0];
-                        if(time >= L) info[1] -= sushi[1];
+                        int time = t - s.t;
+                        if(time >= L) info[1] -= s.cnt;
                         else{
-                            int new_pos = (pos + time);
-                            int p_pos = info[0] < pos ? info[0] + L : info[0];
-                            if(pos <= p_pos && p_pos <= new_pos) info[1] -= sushi[1];
+                            int p_pos = info[0];
+                            if(p_pos < s.x) p_pos += L; 
+                            if(s.x <= p_pos && p_pos <= (s.x + time)) info[1] -= s.cnt;
                             else{
-                                new_pos %= L;
-                                if(new_map.containsKey(new_pos)){
-                                    int[] savedSushi = new_map.get(new_pos);
-                                    savedSushi[1] += sushi[1];
-                                    new_map.put(new_pos, savedSushi);
-                                }else{
-                                    new_map.put(new_pos, new int[]{t, sushi[1]});
-                                }
+                                s.t = t;
+                                s.x = (s.x + time) % L;
+                                if(!q.isEmpty() && q.peekLast().x == s.x) q.peekLast().cnt++;
+                                else q.add(s);
                             }
                         }
 
-                    }
-                    if(info[1] == 0) people.remove(name);
-                    sushi_map.put(name, new_map);
-                }
 
+                        if(info[1] == 0) people.remove(name);
+                    }
+                }
+                
                 int sushi_cnt = 0;
                 for(String name : sushi_map.keySet()){
-                    for(int pos : sushi_map.get(name).keySet()){
-                        sushi_cnt += sushi_map.get(name).get(pos)[1];
+                    ArrayDeque<Sushi> q = sushi_map.get(name);
+                    for(Sushi sushi : q){
+                        sushi_cnt += sushi.cnt;
                     }
                 }
 
