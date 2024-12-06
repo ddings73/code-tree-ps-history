@@ -82,7 +82,8 @@ public class Main {
                 // t 시각의 사람 수 와 초밥 수 출력
                 int t = Integer.parseInt(stk.nextToken());
 
-                for(String name : people.keySet()){
+                Set<String> keySet = new HashSet<>(people.keySet());
+                for(String name : keySet){
                     int[] info = people.get(name);
 
                     if(!sushi_map.containsKey(name)) continue;
