@@ -69,6 +69,8 @@ public class Main {
             }else if("400".equals(command)){
                 int c1 = Integer.parseInt(stk.nextToken());
                 int c2 = Integer.parseInt(stk.nextToken());
+                if(tree[c1].parent == tree[c2].parent) continue;
+
                 if(tree[c1].alarm) update2(tree[c1], -1);
                 if(tree[c2].alarm) update2(tree[c2], -1);
 
@@ -89,35 +91,40 @@ public class Main {
     }
 
     private static void update(Node node, int v){
-        int depth = node.power;
+        int depth = 1;
         int power = node.power;
 
-        while(depth-- > 0 && node.parent != null){
+        while(depth <= power && node.parent != null){
             Node parent = node.parent;
-            parent.count[power] += v;
+            parent.count[power - depth] += v;
             parent.sum += v;
+            if(!parent.alarm) break;
             node = parent;
+            depth++;
         }
     }
     
     private static void update2(Node node, int v){
         Node origin = node;
-        int op = origin.power;
+        int depth = 1;
 
-        int d = 2;
+        int d = 1;
         while(node.parent != null){
             Node parent = node.parent;
 
-            if(op > 0){
-                parent.count[origin.power] += v;
+            if(origin.power >= depth){
+                parent.count[origin.power - depth] += v;
                 parent.sum += v;
-                op--;
+                depth++;
             }
 
             for(int i = d; i <= N; i++){
-                parent.count[i] += (v * origin.count[i]);
+                parent.count[i - 1] += (v * origin.count[i]);
                 parent.sum += (v * origin.count[i]);
             }
+
+            
+            if(!parent.alarm) break;
             node = parent;
             d++;
         }
@@ -151,4 +158,19 @@ public class Main {
         5 : 1
             3 : 3
             7 : 3
+
+
+
+10 10 7 3 9 4 0 5 0 3
+0
+    7 : 2
+        3 : 2 2x
+            4 : 1 1x
+                6 : 1 3x
+            10 : 1
+                1 : 3
+                2 : 2 
+    9 : 1
+        5 : 1
+            8 : 1
 */
