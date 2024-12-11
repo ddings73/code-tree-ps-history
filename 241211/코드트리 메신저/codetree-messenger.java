@@ -27,7 +27,7 @@ public class Main {
 
         tree = new Node[N + 1];
         Set<Integer> leaf = new HashSet<>();
-        for(int i = 0; i <= N; i++){
+        for(int i = 1; i <= N; i++){
             tree[i] = new Node(null, 0);
         }
 
@@ -69,6 +69,8 @@ public class Main {
             }else if("400".equals(command)){
                 int c1 = Integer.parseInt(stk.nextToken());
                 int c2 = Integer.parseInt(stk.nextToken());
+
+                // 같은 부모를 가졌다면 무의미
                 if(tree[c1].parent == tree[c2].parent) continue;
 
                 if(tree[c1].alarm) update2(tree[c1], -1);
@@ -94,11 +96,10 @@ public class Main {
         int depth = 1;
         int power = node.power;
 
-        while(depth <= power && node.parent != null){
+        while(node.alarm && depth <= power && node.parent != null){
             Node parent = node.parent;
             parent.count[power - depth] += v;
             parent.sum += v;
-            if(!parent.alarm) break;
             node = parent;
             depth++;
         }
@@ -119,7 +120,7 @@ public class Main {
             }
 
             for(int i = d; i <= N; i++){
-                parent.count[i - 1] += (v * origin.count[i]);
+                parent.count[i - d] += (v * origin.count[i]);
                 parent.sum += (v * origin.count[i]);
             }
 
@@ -130,47 +131,3 @@ public class Main {
         }
     }
 }
-
-
-/*
-0 1 1 2 2 3 3 5 6
-0
-    1 : 1
-        2 : 1
-            4 : 2
-            5 : 1
-                9 : 3
-        3 : 1
-            6 : 2
-                8 : 1
-            7 : 2
-
-
-8 10 10 0 4 5 5 9 0 9
-0
-    4 : 2
-        10 : 2
-            2 : 1
-            6 : 2
-    9 : 1
-        8 : 2
-            1 : 2
-        5 : 1
-            3 : 3
-            7 : 3
-
-
-
-10 10 7 3 9 4 0 5 0 3
-0
-    7 : 2
-        3 : 2 2x
-            4 : 1 1x
-                6 : 1 3x
-            10 : 1
-                1 : 3
-                2 : 2 
-    9 : 1
-        5 : 1
-            8 : 1
-*/
