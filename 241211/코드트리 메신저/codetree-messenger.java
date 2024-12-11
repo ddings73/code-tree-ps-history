@@ -7,15 +7,16 @@ public class Main {
     private static Node[] tree;
     private static class Node{
         Node parent;
-        int power;
-        Set<Integer> childs;
+        int power, sum;
         boolean alarm;
+        int[] count;
 
         Node(Node parent, int power){
             this.parent = parent;
             this.power = power;
-            this.childs = new HashSet<>();
+            this.sum = 0;
             this.alarm = true;
+            this.count = new int[N + 1];
         }
     }
     public static void main(String[] args) throws IOException {
@@ -25,6 +26,7 @@ public class Main {
         Q = Integer.parseInt(stk.nextToken());
 
         tree = new Node[N + 1];
+        Set<Integer> leaf = new HashSet<>();
         for(int i = 0; i <= N; i++){
             tree[i] = new Node(null, 0);
         }
@@ -38,56 +40,87 @@ public class Main {
                 for(int i = 0; i < N; i++){
                     int p = Integer.parseInt(stk.nextToken());
                     tree[i + 1].parent = tree[p];
-                    tree[p].childs.add(i + 1);
                 }
 
                 for(int i = 0; i < N; i++){
                     int a = Integer.parseInt(stk.nextToken());
                     tree[i + 1].power = a;
                 }
+
+                for(int i = 1; i <= N; i++){
+                    update(tree[i], 1);
+                }
             }else if("200".equals(command)){
                 int c = Integer.parseInt(stk.nextToken());
                 tree[c].alarm = !tree[c].alarm;
+
+                if(tree[c].alarm){
+                    update2(tree[c], 1);
+                }else{
+                    update2(tree[c], -1);
+                }
             }else if("300".equals(command)){
                 int c = Integer.parseInt(stk.nextToken());
                 int power = Integer.parseInt(stk.nextToken());
+
+                update(tree[c], -1);
                 tree[c].power = power;
+                update(tree[c], 1);
             }else if("400".equals(command)){
                 int c1 = Integer.parseInt(stk.nextToken());
                 int c2 = Integer.parseInt(stk.nextToken());
+                if(tree[c1].alarm) update2(tree[c1], -1);
+                if(tree[c2].alarm) update2(tree[c2], -1);
 
-                Node c1_p = tree[c1].parent;
-                Node c2_p = tree[c2].parent;
+                Node c1_parent = tree[c1].parent;
+                tree[c1].parent = tree[c2].parent;
+                tree[c2].parent = c1_parent;
 
-                if(c1_p == c2_p) continue;
-
-                c1_p.childs.remove(c1);
-                c1_p.childs.add(c2);
-
-                c2_p.childs.remove(c2);
-                c2_p.childs.add(c1);
-
-                tree[c1].parent = c2_p;
-                tree[c2].parent = c1_p;
+                if(tree[c1].alarm) update2(tree[c1], 1);
+                if(tree[c2].alarm) update2(tree[c2], 1);
+                
             }else if("500".equals(command)){
                 int c = Integer.parseInt(stk.nextToken());
-                int count = counting(tree[c], 0);
-                sb.append(count).append("\n");
+                sb.append(tree[c].sum).append("\n");
             }
         }
 
         System.out.println(sb.toString());
     }
 
-    private static int counting(Node node, int depth){
-        int count = node.power < depth || depth == 0 ? 0 : 1;
-        for(Integer idx : node.childs){
-            Node child = tree[idx];
-            if(!child.alarm) continue;
-            count += counting(child, depth + 1);
-        }
+    private static void update(Node node, int v){
+        int depth = node.power;
+        int power = node.power;
 
-        return count;
+        while(depth-- > 0 && node.parent != null){
+            Node parent = node.parent;
+            parent.count[power] += v;
+            parent.sum += v;
+            node = parent;
+        }
+    }
+    
+    private static void update2(Node node, int v){
+        Node origin = node;
+        int op = origin.power;
+
+        int d = 2;
+        while(node.parent != null){
+            Node parent = node.parent;
+
+            if(op > 0){
+                parent.count[origin.power] += v;
+                parent.sum += v;
+                op--;
+            }
+
+            for(int i = d; i <= N; i++){
+                parent.count[i] += (v * origin.count[i]);
+                parent.sum += (v * origin.count[i]);
+            }
+            node = parent;
+            d++;
+        }
     }
 }
 
@@ -99,10 +132,10 @@ public class Main {
         2 : 1
             4 : 2
             5 : 1
-                8 : 1
+                9 : 3
         3 : 1
             6 : 2
-                9 : 3
+                8 : 1
             7 : 2
 
 
