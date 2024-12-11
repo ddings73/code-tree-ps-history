@@ -59,6 +59,8 @@ public class Main {
                 Node c1_p = tree[c1].parent;
                 Node c2_p = tree[c2].parent;
 
+                if(c1_p == c2_p) continue;
+
                 c1_p.childs.remove(c1);
                 c1_p.childs.add(c2);
 
@@ -70,7 +72,6 @@ public class Main {
             }else if("500".equals(command)){
                 int c = Integer.parseInt(stk.nextToken());
                 int count = counting(tree[c], 0);
-
                 sb.append(count).append("\n");
             }
         }
@@ -103,4 +104,18 @@ public class Main {
             6 : 2
                 9 : 3
             7 : 2
+
+
+8 10 10 0 4 5 5 9 0 9
+0
+    4 : 2
+        10 : 2
+            2 : 1
+            6 : 2
+    9 : 1
+        8 : 2
+            1 : 2
+        5 : 1
+            3 : 3
+            7 : 3
 */
