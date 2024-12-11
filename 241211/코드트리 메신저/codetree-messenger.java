@@ -9,14 +9,14 @@ public class Main {
         Node parent;
         int power, sum;
         boolean alarm;
-        int[] count;
+        Map<Integer, Integer> count;
 
         Node(Node parent, int power){
             this.parent = parent;
             this.power = power;
             this.sum = 0;
             this.alarm = true;
-            this.count = new int[N + 1];
+            this.count = new HashMap<>();
         }
     }
     public static void main(String[] args) throws IOException {
@@ -98,8 +98,15 @@ public class Main {
 
         while(node.alarm && depth <= power && node.parent != null){
             Node parent = node.parent;
-            parent.count[power - depth] += v;
+            
+            int idx = power - depth;
+
+            int value = parent.count.containsKey(idx)
+                ? parent.count.get(idx) + v
+                : v;
+            parent.count.put(idx, value);
             parent.sum += v;
+
             node = parent;
             depth++;
         }
@@ -114,16 +121,25 @@ public class Main {
             Node parent = node.parent;
 
             if(origin.power >= depth){
-                parent.count[origin.power - depth] += v;
+                int idx = origin.power - depth;
+                int value = parent.count.containsKey(idx)
+                    ? parent.count.get(idx) + v
+                    : v;
+                parent.count.put(idx, value);
                 parent.sum += v;
+
                 depth++;
             }
+            
+            for(Integer key : origin.count.keySet()){
+                if(key - d < 0) continue;
 
-            for(int i = d; i <= N; i++){
-                parent.count[i - d] += (v * origin.count[i]);
-                parent.sum += (v * origin.count[i]);
+                int value = parent.count.containsKey(key - d) 
+                    ? parent.count.get(key - d) + (v * origin.count.get(key))
+                    : (v * origin.count.get(key));
+                parent.count.put(key - d, value);
+                parent.sum += (v * origin.count.get(key));
             }
-
             
             if(!parent.alarm) break;
             node = parent;
