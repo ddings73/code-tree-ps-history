@@ -24,10 +24,10 @@ public class Main {
 
         public int check_area(){
             int trap = 0;
-            for(int i = r; i <= L && i < r + h; i++){
-                for(int j = c; j <= L && j < c + w; j++){
+            for(int i = r; i < r + h; i++){
+                for(int j = c; j < c + w; j++){
+                    if(i > L || j > L || chess[i][j] == 2) return -1;
                     if(chess[i][j] == 1) trap++;
-                    else if(chess[i][j] == 2) return -1;
                 }
             }
             return trap;
@@ -110,9 +110,9 @@ public class Main {
             // 대결 데미지
             for(Integer key : tmp_map.keySet()){
                 Knight knight = tmp_map.get(key);
-                int damage = knight.check_area();
 
                 if(key != idx){
+                    int damage = knight.check_area();
                     knight.dmg += damage;
                     if(!knight.health_check()){
                         knights.remove(key);
@@ -136,11 +136,11 @@ public class Main {
     private static boolean collapse(Knight a, Knight b){
         int b_from_r = b.r;
         int b_from_c = b.c;
-        int b_to_r = b.r + b.h >= L ? L : b.r + b.h;
-        int b_to_c = b.c + b.w >= L ? L : b.c + b.w; 
+        int b_to_r = b.r + b.h;
+        int b_to_c = b.c + b.w; 
 
-        for(int i = a.r; i <= L && i < a.r + a.h; i++){
-            for(int j = a.c; j <= L && j < a.c + a.w; j++){
+        for(int i = a.r; i < a.r + a.h; i++){
+            for(int j = a.c; j < a.c + a.w; j++){
                 if(b_from_r <= i && i < b_to_r && b_from_c <= j && j < b_to_c) 
                     return true;
             }
