@@ -12,14 +12,14 @@ public class Main {
 
     private static class Knight{
         int idx, r, c, h, w, k, dmg;
-        Knight(int idx, int r, int c, int h, int w, int k){
+        Knight(int idx, int r, int c, int h, int w, int k, int dmg){
             this.idx = idx;
             this.r = r;
             this.c = c;
             this.h = h;
             this.w = w;
             this.k = k;
-            this.dmg = 0;
+            this.dmg = dmg;
         }
 
         public int check_area(){
@@ -64,7 +64,7 @@ public class Main {
             int w = Integer.parseInt(stk.nextToken());
             int k = Integer.parseInt(stk.nextToken());
 
-            Knight knight = new Knight(i, r,c,h,w,k);
+            Knight knight = new Knight(i,r,c,h,w,k,0);
             knights.put(i, knight);
         }
 
@@ -88,10 +88,9 @@ public class Main {
 
                 int nr = knight.r + dr[d];
                 int nc = knight.c + dc[d];
-                Knight moved_knight = new Knight(knight.idx, nr, nc, knight.h, knight.w, knight.k);
+                Knight moved_knight = new Knight(knight.idx, nr, nc, knight.h, knight.w, knight.k,knight.dmg);
 
-                if(nr <= 0 || nr > L || nc <= 0 || nc > L) continue;
-                if(moved_knight.check_area() == -1){
+                if(nr <= 0 || nr > L || nc <= 0 || nc > L || moved_knight.check_area() == -1){
                     tmp_map.clear();
                     break;
                 }
@@ -101,7 +100,7 @@ public class Main {
                     if(visit[key]) continue;
                     Knight knight2 = knights.get(key);
 
-                    if(collapse(knight, knight2)){
+                    if(collapse(moved_knight, knight2)){
                         visit[key] = true;
                         q.add(knight2);
                     }
@@ -113,10 +112,12 @@ public class Main {
                 Knight knight = tmp_map.get(key);
                 int damage = knight.check_area();
 
-                knight.dmg += damage;
-                if(!knight.health_check()){
-                    knights.remove(key);
-                    continue;
+                if(key != idx){
+                    knight.dmg += damage;
+                    if(!knight.health_check()){
+                        knights.remove(key);
+                        continue;
+                    }
                 }
 
                 knights.put(key, knight);
@@ -140,9 +141,15 @@ public class Main {
 
         for(int i = a.r; i <= L && i < a.r + a.h; i++){
             for(int j = a.c; j <= L && j < a.c + a.w; j++){
-                if(b_from_r <= i && i < b_to_r && b_from_c <= j && j < b_to_c) return true;
+                if(b_from_r <= i && i < b_to_r && b_from_c <= j && j < b_to_c) 
+                    return true;
             }
         }
         return false;
     }
 }
+
+
+/*
+
+*/
