@@ -31,6 +31,8 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         Q = Integer.parseInt(br.readLine());
 
+        int sum = 0;
+
         StringBuilder sb = new StringBuilder();
         while(Q-- > 0){
             StringTokenizer stk = new StringTokenizer(br.readLine());
@@ -56,6 +58,7 @@ public class Main {
                 waiting_url.add(url);
 
                 wq_map.put(domain, pq);
+                sum++;
             }else if("200".equals(command)){ // 채점 데이터 추가
                 TIME = Integer.parseInt(stk.nextToken());
                 int p = Integer.parseInt(stk.nextToken());
@@ -74,6 +77,7 @@ public class Main {
                 waiting_url.add(url);
 
                 wq_map.put(domain, pq);
+                sum++;
             }else if("300".equals(command)){ 
                 TIME = Integer.parseInt(stk.nextToken());
                 if(waiting_grader.isEmpty()) continue;
@@ -82,9 +86,7 @@ public class Main {
                 for(String domain : wq_map.keySet()){
                     PriorityQueue<Task> pq = wq_map.get(domain);
                     if(!statusCheck(domain) || pq.isEmpty()) continue;
-                    Task tmp = pq.poll();
-                    pq.add(tmp);
-
+                    Task tmp = pq.peek();
                     if(task == null || task.priority > tmp.priority || (task.priority == tmp.priority && task.input > tmp.input)){
                         task = tmp;
                     }
@@ -102,6 +104,7 @@ public class Main {
                 judged_domains.add(domain);
                 
                 waiting_url.remove(task.url);
+                sum--;
             }else if("400".equals(command)){ 
                 TIME = Integer.parseInt(stk.nextToken());
                 int j_id = Integer.parseInt(stk.nextToken());
@@ -118,12 +121,6 @@ public class Main {
                 waiting_grader.add(j_id);
             }else if("500".equals(command)){
                 TIME = Integer.parseInt(stk.nextToken());
-                int sum = 0;
-
-                for(String domain : wq_map.keySet()){
-                    sum += wq_map.get(domain).size();
-                }
-                
                 sb.append(sum).append("\n");
             }
         }
