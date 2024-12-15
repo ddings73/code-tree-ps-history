@@ -4,18 +4,7 @@ import java.io.*;
 public class Main {
     private static int Q, N, TIME;
 
-    private static PriorityQueue<Task> waiting_q = new PriorityQueue<>((o1, o2)->{
-        boolean o1_status = statusCheck(o1);
-        boolean o2_status = statusCheck(o2);
-
-        if(!o1_status && !o2_status) return 0;
-        if(!o1_status) return 1;
-        if(!o2_status) return -1;
-        
-        if(o1.priority == o2.priority) return o1.input - o2.input;
-        return o1.priority - o2.priority;
-    });
-
+    private static Map<String, PriorityQueue<Task>> wq_map = new HashMap<>();
     private static Set<String> waiting_url = new HashSet<>();
     
     private static Task[] grader;
@@ -45,7 +34,7 @@ public class Main {
         StringBuilder sb = new StringBuilder();
         while(Q-- > 0){
             StringTokenizer stk = new StringTokenizer(br.readLine());
-
+            
             String command = stk.nextToken();
             if("100".equals(command)){
                 N = Integer.parseInt(stk.nextToken());
@@ -55,10 +44,18 @@ public class Main {
                 }
 
                 String url = stk.nextToken();
-
                 Task task = new Task(0, 1, url);
-                waiting_q.add(task);
+
+                String domain = url.split("/")[0];
+
+                PriorityQueue<Task> pq = new PriorityQueue<>((o1, o2)->{
+                    if(o1.priority == o2.priority) return o1.input - o2.input;
+                    return o1.priority - o2.priority;
+                });
+                pq.add(task);
                 waiting_url.add(url);
+
+                wq_map.put(domain, pq);
             }else if("200".equals(command)){ // 채점 데이터 추가
                 TIME = Integer.parseInt(stk.nextToken());
                 int p = Integer.parseInt(stk.nextToken());
@@ -66,36 +63,58 @@ public class Main {
 
                 if(waiting_url.contains(url)) continue;
                 Task task = new Task(TIME, p, url);
-                waiting_q.add(task);
+
+                String domain = url.split("/")[0];
+                PriorityQueue<Task> pq = wq_map.containsKey(domain) ? wq_map.get(domain) : new PriorityQueue<>((o1, o2)->{
+                    if(o1.priority == o2.priority) return o1.input - o2.input;
+                    return o1.priority - o2.priority;
+                });
+
+                pq.add(task);
                 waiting_url.add(url);
+
+                wq_map.put(domain, pq);
             }else if("300".equals(command)){ // 채점 시작 시간
                 TIME = Integer.parseInt(stk.nextToken());
-                
-                if(waiting_q.isEmpty()) continue;
-                waiting_q.add(waiting_q.poll());
 
-                Task task = waiting_q.poll();
+                if(waiting_grader.isEmpty()) continue;
+
+                PriorityQueue<Task> pq = new PriorityQueue<>((o1, o2)->{
+                    if(o1.priority == o2.priority) return o1.input - o2.input;
+                    return o1.priority - o2.priority;
+                });
                 
-                boolean status = statusCheck(task);
-                if(!status || waiting_grader.isEmpty()){
-                    waiting_q.add(task);
-                    continue;
+                for(String domain : wq_map.keySet()){
+                    if(!statusCheck(domain) || wq_map.get(domain).isEmpty()) continue;
+                    Task task = wq_map.get(domain).poll();
+                    pq.add(task);
                 }
 
+                if(pq.isEmpty()) continue;
+
+                Task task = pq.poll();
                 task.start = TIME;
 
                 int j_id = waiting_grader.poll();
                 grader[j_id] = task;
                 judged_domains.add(task.url.split("/")[0]);
-
                 waiting_url.remove(task.url);
+
+                while(!pq.isEmpty()){
+                    Task tmp_task = pq.poll();
+                    String domain = tmp_task.url.split("/")[0];
+
+                    wq_map.get(domain).add(tmp_task);
+                }
+
             }else if("400".equals(command)){ // 채점 종료 시간
                 TIME = Integer.parseInt(stk.nextToken());
                 int j_id = Integer.parseInt(stk.nextToken());
 
                 Task task = grader[j_id];
                 if(task == null) continue;
-
+                grader[j_id] = null;
+                
                 task.end = TIME;
 
                 String domain = task.url.split("/")[0];
@@ -104,23 +123,26 @@ public class Main {
                 waiting_grader.add(j_id);
             }else if("500".equals(command)){
                 TIME = Integer.parseInt(stk.nextToken());
-                sb.append(waiting_q.size()).append("\n");
+                int sum = 0;
+
+                for(String domain : wq_map.keySet()){
+                    sum += wq_map.get(domain).size();
+                }
+                
+                sb.append(sum).append("\n");
             }
         }
 
         System.out.println(sb.toString());
     }
 
-    private static boolean statusCheck(Task task){
-        String domain = task.url.split("/")[0];
-
+    private static boolean statusCheck(String domain){
         if(judged_domains.contains(domain)) return false;
         if(history.containsKey(domain)){
             Task value = history.get(domain);
             int gap = value.end - value.start;
             return TIME >= value.start + 3 * gap;
         }
-
         return true;
     }
 }
