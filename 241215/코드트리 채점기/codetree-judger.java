@@ -7,8 +7,8 @@ public class Main {
     private static PriorityQueue<Task> waiting_q = new PriorityQueue<>((o1, o2)->{
         boolean o1_status = statusCheck(o1);
         boolean o2_status = statusCheck(o2);
-
-        if(!o1_status && !o2_status) return 0;
+        
+        if(!o1_status && !o2_status) return -1;
         if(!o1_status) return 1;
         if(!o2_status) return -1;
         
@@ -71,11 +71,14 @@ public class Main {
             }else if("300".equals(command)){ // 채점 시작 시간
                 TIME = Integer.parseInt(stk.nextToken());
 
-                Task task = waiting_q.peek();
+                Task task = waiting_q.poll();
+                
                 boolean status = statusCheck(task);
-                if(!status || waiting_grader.isEmpty()) continue;
+                if(!status || waiting_grader.isEmpty()){
+                    waiting_q.add(task);
+                    continue;
+                }
 
-                task = waiting_q.poll();
                 task.start = TIME;
 
                 int j_id = waiting_grader.poll();
@@ -83,6 +86,7 @@ public class Main {
                 judged_domains.add(task.url.split("/")[0]);
 
                 waiting_url.remove(task.url);
+
             }else if("400".equals(command)){ // 채점 종료 시간
                 TIME = Integer.parseInt(stk.nextToken());
                 int j_id = Integer.parseInt(stk.nextToken());
@@ -107,14 +111,19 @@ public class Main {
 
     private static boolean statusCheck(Task task){
         String domain = task.url.split("/")[0];
+
         if(judged_domains.contains(domain)) return false;
         if(history.containsKey(domain)){
             Task value = history.get(domain);
             int gap = value.end - value.start;
-            if(TIME < value.start + 3 * gap) 
-                return false;
+            return TIME >= value.start + 3 * gap;
         }
 
         return true;
     }
 }
+
+
+/*
+
+*/
