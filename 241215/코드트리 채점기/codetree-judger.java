@@ -79,34 +79,28 @@ public class Main {
 
                 if(waiting_grader.isEmpty()) continue;
 
-                PriorityQueue<Task> pq = new PriorityQueue<>((o1, o2)->{
-                    if(o1.priority == o2.priority) return o1.input - o2.input;
-                    return o1.priority - o2.priority;
-                });
-                
+                Task task = null;
                 for(String domain : wq_map.keySet()){
-                    if(!statusCheck(domain) || wq_map.get(domain).isEmpty()) continue;
-                    Task task = wq_map.get(domain).poll();
-                    pq.add(task);
+                    PriorityQueue<Task> pq = wq_map.get(domain);
+                    if(!statusCheck(domain) || pq.isEmpty()) continue;
+                    Task tmp = pq.poll();
+                    pq.add(tmp);
+
+                    if(task == null || task.priority > tmp.priority || (task.priority == tmp.priority && task.input > tmp.input)){
+                        task = tmp;
+                    }
                 }
 
-                if(pq.isEmpty()) continue;
-
-                Task task = pq.poll();
+                if(task == null) continue;
                 task.start = TIME;
+
+                String domain = task.url.split("/")[0];
+                wq_map.get(domain).poll();
 
                 int j_id = waiting_grader.poll();
                 grader[j_id] = task;
                 judged_domains.add(task.url.split("/")[0]);
                 waiting_url.remove(task.url);
-
-                while(!pq.isEmpty()){
-                    Task tmp_task = pq.poll();
-                    String domain = tmp_task.url.split("/")[0];
-
-                    wq_map.get(domain).add(tmp_task);
-                }
-
             }else if("400".equals(command)){ // 채점 종료 시간
                 TIME = Integer.parseInt(stk.nextToken());
                 int j_id = Integer.parseInt(stk.nextToken());
@@ -114,7 +108,7 @@ public class Main {
                 Task task = grader[j_id];
                 if(task == null) continue;
                 grader[j_id] = null;
-                
+
                 task.end = TIME;
 
                 String domain = task.url.split("/")[0];
