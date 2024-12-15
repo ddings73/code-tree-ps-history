@@ -7,8 +7,8 @@ public class Main {
     private static PriorityQueue<Task> waiting_q = new PriorityQueue<>((o1, o2)->{
         boolean o1_status = statusCheck(o1);
         boolean o2_status = statusCheck(o2);
-        
-        if(!o1_status && !o2_status) return -1;
+
+        if(!o1_status && !o2_status) return 0;
         if(!o1_status) return 1;
         if(!o2_status) return -1;
         
@@ -70,6 +70,9 @@ public class Main {
                 waiting_url.add(url);
             }else if("300".equals(command)){ // 채점 시작 시간
                 TIME = Integer.parseInt(stk.nextToken());
+                
+                if(waiting_q.isEmpty()) continue;
+                waiting_q.add(waiting_q.poll());
 
                 Task task = waiting_q.poll();
                 
@@ -86,7 +89,6 @@ public class Main {
                 judged_domains.add(task.url.split("/")[0]);
 
                 waiting_url.remove(task.url);
-
             }else if("400".equals(command)){ // 채점 종료 시간
                 TIME = Integer.parseInt(stk.nextToken());
                 int j_id = Integer.parseInt(stk.nextToken());
@@ -122,8 +124,3 @@ public class Main {
         return true;
     }
 }
-
-
-/*
-
-*/
