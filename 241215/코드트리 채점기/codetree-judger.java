@@ -63,8 +63,8 @@ public class Main {
 
                 if(waiting_url.contains(url)) continue;
                 Task task = new Task(TIME, p, url);
-
                 String domain = url.split("/")[0];
+
                 PriorityQueue<Task> pq = wq_map.containsKey(domain) ? wq_map.get(domain) : new PriorityQueue<>((o1, o2)->{
                     if(o1.priority == o2.priority) return o1.input - o2.input;
                     return o1.priority - o2.priority;
@@ -74,9 +74,8 @@ public class Main {
                 waiting_url.add(url);
 
                 wq_map.put(domain, pq);
-            }else if("300".equals(command)){ // 채점 시작 시간
+            }else if("300".equals(command)){ 
                 TIME = Integer.parseInt(stk.nextToken());
-
                 if(waiting_grader.isEmpty()) continue;
 
                 Task task = null;
@@ -98,10 +97,12 @@ public class Main {
                 wq_map.get(domain).poll();
 
                 int j_id = waiting_grader.poll();
+
                 grader[j_id] = task;
-                judged_domains.add(task.url.split("/")[0]);
+                judged_domains.add(domain);
+                
                 waiting_url.remove(task.url);
-            }else if("400".equals(command)){ // 채점 종료 시간
+            }else if("400".equals(command)){ 
                 TIME = Integer.parseInt(stk.nextToken());
                 int j_id = Integer.parseInt(stk.nextToken());
 
