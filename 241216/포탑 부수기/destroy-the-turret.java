@@ -42,7 +42,6 @@ public class Main {
             }
         }
 
-        
         for(int time = 1; time <= K; time++){
             Turret attacker = findAttacker();
             Turret target = findTarget();
@@ -51,19 +50,17 @@ public class Main {
             attacker.atk_time = time;
             attacker.atk += (N + M);
 
-            int[][] visit = new int[N][M];
-            for(int i = 0; i < N; i++) Arrays.fill(visit[i], -1);
+            boolean[][] visit = new boolean[N][M];
+            Turret[][] parent = new Turret[N][M];
 
-            PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2)->{
-                return Integer.compare(o1[2], o2[2]);
-            });
-            pq.add(new int[]{attacker.r, attacker.c, 0});
-            visit[attacker.r][attacker.c] = 0;
-            while(!pq.isEmpty()){
-                int[] info = pq.poll();
+            Queue<int[]> q = new ArrayDeque<>();
+            q.add(new int[]{attacker.r, attacker.c});
+            visit[attacker.r][attacker.c] = true;
+
+            while(!q.isEmpty()){
+                int[] info = q.poll();
                 int r = info[0];
                 int c = info[1];
-                int cnt = info[2];
 
                 if(target.r == r && target.c == c) break;
                 for(int i = 0; i < 4; i++){
@@ -72,19 +69,19 @@ public class Main {
 
                     if(nr == N) nr = 0; if(nr == -1) nr = N - 1;
                     if(nc == M) nc = 0; if(nc == -1) nc = M - 1;
-                    if(map[nr][nc].atk <= 0 || (visit[nr][nc] != -1 && visit[nr][nc] <= cnt + 1)) continue;
-                    visit[nr][nc] = cnt + 1;
-                    pq.add(new int[]{nr, nc, cnt + 1}); 
+                    if(map[nr][nc].atk <= 0 || visit[nr][nc]) continue;
+                    visit[nr][nc] = true;
+                    parent[nr][nc] = map[r][c];
+                    q.add(new int[]{nr, nc}); 
                 }
             }
             
             boolean[][] except = new boolean[N][M];
             except[attacker.r][attacker.c] = true;
             except[target.r][target.c] = true;
-            // 레이저 공격 실패
-
             target.atk -= attacker.atk;
-            if(visit[target.r][target.c] == -1){
+
+            if(!visit[target.r][target.c]){
                 for(int i = 0; i < 8; i++){
                     int nr = target.r + dr[i];
                     int nc = target.c + dc[i];
@@ -96,31 +93,14 @@ public class Main {
                     except[nr][nc] = true;
                 }
             }else{
-                Queue<int[]> q = new ArrayDeque<>();
+                int r = target.r;
+                int c = target.c;
 
-                q.add(new int[]{target.r, target.c});
-                while(!q.isEmpty()){
-                    int[] info = q.poll();
-                    int r = info[0];
-                    int c = info[1];
-                    
-                    if(attacker.r == r && attacker.c == c) break;
-                    if((target.r != r || target.c != c)){
-                        map[r][c].atk -= (attacker.atk / 2);
-                        except[r][c] = true;
-                    }
-
-                    for(int i = 3; i >= 0; i--){
-                        int nr = r + dr[i];
-                        int nc = c + dc[i];
-
-                        if(nr == N) nr = 0; if(nr == -1) nr = N - 1;
-                        if(nc == M) nc = 0; if(nc == -1) nc = M - 1;
-                        if(visit[nr][nc] == visit[r][c] - 1){
-                            q.add(new int[]{nr, nc});
-                            break;
-                        }
-                    }                    
+                Turret turret = parent[r][c];
+                while(!turret.equals(attacker)){
+                    except[turret.r][turret.c] = true;
+                    map[turret.r][turret.c].atk -= (attacker.atk / 2);
+                    turret = parent[turret.r][turret.c];
                 }
             }
 
@@ -161,7 +141,7 @@ public class Main {
         if(a.atk == b.atk){
             if(a.atk_time < b.atk_time) return true;
             if(a.atk_time == b.atk_time){
-                if((a.r + a.c < b.r + b.c) || a.r + a.c == b.r + b.c && a.c < b.c) 
+                if((a.r + a.c < b.r + b.c) || (a.r + a.c == b.r + b.c && a.c < b.c)) 
                     return true;
             }
         }
@@ -187,7 +167,7 @@ public class Main {
         if(a.atk == b.atk){
             if(a.atk_time > b.atk_time) return true;
             if(a.atk_time == b.atk_time){
-                if((a.r + a.c > b.r + b.c) || a.r + a.c == b.r + b.c && a.c > b.c) 
+                if((a.r + a.c > b.r + b.c) || (a.r + a.c == b.r + b.c && a.c > b.c)) 
                     return true;
             }
         }
