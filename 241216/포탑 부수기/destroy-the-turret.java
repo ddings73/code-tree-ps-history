@@ -96,37 +96,31 @@ public class Main {
                     except[nr][nc] = true;
                 }
             }else{
-                pq = new PriorityQueue<>((o1, o2)->{
-                    int task1 = Integer.compare(o2[2], o1[2]);
-                    return task1 == 0 ? Integer.compare(o1[3], o2[3]) : task1;
-                });
+                Queue<int[]> q = new ArrayDeque<>();
 
-                pq.add(new int[]{attacker.r, attacker.c, 0, 0});
-                while(!pq.isEmpty()){
-                    int[] info = pq.poll();
+                q.add(new int[]{target.r, target.c});
+                while(!q.isEmpty()){
+                    int[] info = q.poll();
                     int r = info[0];
                     int c = info[1];
-                    int cnt = info[2];
                     
-                    if(target.r == r && target.c == c) break;
+                    if(attacker.r == r && attacker.c == c) break;
+                    if((target.r != r || target.c != c)){
+                        map[r][c].atk -= (attacker.atk / 2);
+                        except[r][c] = true;
+                    }
 
-                    boolean move = false;
-                    for(int i = 0; i < 4; i++){
+                    for(int i = 3; i >= 0; i--){
                         int nr = r + dr[i];
                         int nc = c + dc[i];
 
                         if(nr == N) nr = 0; if(nr == -1) nr = N - 1;
                         if(nc == M) nc = 0; if(nc == -1) nc = M - 1;
-                        if(visit[nr][nc] == cnt + 1){
-                            pq.add(new int[]{nr, nc, cnt + 1, i});
-                            move = true;
+                        if(visit[nr][nc] == visit[r][c] - 1){
+                            q.add(new int[]{nr, nc});
+                            break;
                         }
-                    }
-
-                    if(move && (attacker.r != r || attacker.c != c)){
-                        map[r][c].atk -= (attacker.atk / 2);
-                        except[r][c] = true;
-                    }
+                    }                    
                 }
             }
 
