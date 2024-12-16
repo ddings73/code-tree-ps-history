@@ -91,7 +91,7 @@ public class Main {
 
                     if(nr == N) nr = 0; if(nr == -1) nr = N - 1;
                     if(nc == M) nc = 0; if(nc == -1) nc = M - 1;
-                    if(map[nr][nc].atk <= 0) continue;
+                    if(map[nr][nc].atk <= 0 || (attacker.r == nr && attacker.c == nc)) continue;
                     map[nr][nc].atk -= (attacker.atk / 2);
                     except[nr][nc] = true;
                 }
@@ -165,7 +165,7 @@ public class Main {
     private static boolean compareForAttacker(Turret a, Turret b){
         if(a.atk > b.atk) return true;
         if(a.atk == b.atk){
-            if(a.atk_time > b.atk_time) return true;
+            if(a.atk_time < b.atk_time) return true;
             if(a.atk_time == b.atk_time){
                 if((a.r + a.c < b.r + b.c) || a.r + a.c == b.r + b.c && a.c < b.c) 
                     return true;
@@ -191,7 +191,7 @@ public class Main {
     private static boolean compareForTarget(Turret a, Turret b){
         if(a.atk < b.atk) return true;
         if(a.atk == b.atk){
-            if(a.atk_time < b.atk_time) return true;
+            if(a.atk_time > b.atk_time) return true;
             if(a.atk_time == b.atk_time){
                 if((a.r + a.c > b.r + b.c) || a.r + a.c == b.r + b.c && a.c > b.c) 
                     return true;
