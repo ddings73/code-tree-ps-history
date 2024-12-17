@@ -8,12 +8,29 @@ public class Main {
     private static int[] jump_count;
     private static boolean[] pick_history;
 
-    private static int minus_point;
-    private static int[] point;
-    private static int[] discount_point;
+    private static long minus_point;
+    private static long[] point;
+    private static long[] discount_point;
 
     private static int[] dr = new int[]{-1, 1, 0, 0};
     private static int[] dc = new int[]{0, 0, -1, 1};
+
+    private static PriorityQueue<Rabbit> pq1 = new PriorityQueue<>((o1, o2)->{
+        int task = Integer.compare(o1.jump_count, o2.jump_count);
+        if(task != 0) return task;
+        
+        task = Integer.compare(o1.r + o1.c, o2.r + o2.c);
+        if(task != 0) return task;
+        
+        task = Integer.compare(o1.r, o2.r);
+        if(task != 0) return task;
+
+        task = Integer.compare(o1.c, o2.c);
+        if(task != 0) return task;
+        
+        return Integer.compare(o1.pid, o2.pid);
+    });
+    
     private static class Rabbit{
         int idx, pid, d, jump_count;
         int r, c;
@@ -39,20 +56,21 @@ public class Main {
                 M = Integer.parseInt(stk.nextToken());
                 P = Integer.parseInt(stk.nextToken());
 
-                point = new int[P];
-                discount_point = new int[P];
+                point = new long[P];
+                discount_point = new long[P];
                 for(int i = 0; i < P; i++){
                     int pid = Integer.parseInt(stk.nextToken());
                     int d = Integer.parseInt(stk.nextToken());
                     Rabbit rabbit = new Rabbit(i, pid, d);
                     rabbits.put(pid, rabbit);
+                    pq1.add(rabbit);
                 }
             }else if("200".equals(command)){
                 int K = Integer.parseInt(stk.nextToken());
                 int S = Integer.parseInt(stk.nextToken());
                 pick_history = new boolean[P];
                 while(K-- > 0){
-                    Rabbit rabbit = select1();
+                    Rabbit rabbit = pq1.poll();
                     pick_history[rabbit.idx] = true;
                     
                     PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2)->{
@@ -83,8 +101,9 @@ public class Main {
                     rabbit.r = info[0];
                     rabbit.c = info[1];
                     rabbit.jump_count++;
+                    pq1.add(rabbit);
                 }
-                Rabbit rabbit = select2();
+                Rabbit rabbit = select();
                 point[rabbit.idx] += S;
             }else if("300".equals(command)){
                 int pid = Integer.parseInt(stk.nextToken());
@@ -93,7 +112,7 @@ public class Main {
                 Rabbit rabbit = rabbits.get(pid);
                 rabbit.d *= L;
             }else if("400".equals(command)){
-                int max = 0;
+                long max = 0;
                 for(int i = 0; i < P; i++){
                     max = Math.max(max, point[i] + minus_point - discount_point[i]);
                 }  
@@ -103,31 +122,7 @@ public class Main {
         }
     }
 
-    private static Rabbit select1(){
-        PriorityQueue<Rabbit> pq = new PriorityQueue<>((o1, o2)->{
-            int task = Integer.compare(o1.jump_count, o2.jump_count);
-            if(task != 0) return task;
-            
-            task = Integer.compare(o1.r + o1.c, o2.r + o2.c);
-            if(task != 0) return task;
-            
-            task = Integer.compare(o1.r, o2.r);
-            if(task != 0) return task;
-
-            task = Integer.compare(o1.c, o2.c);
-            if(task != 0) return task;
-            
-            return Integer.compare(o1.pid, o2.pid);
-        });
-
-        for(Rabbit rabbit : rabbits.values()){
-            pq.add(rabbit);
-        }
-
-        return pq.poll();
-    }
-
-    private static Rabbit select2(){
+    private static Rabbit select(){
         PriorityQueue<Rabbit> pq = new PriorityQueue<>((o1, o2)->{
             int task = Integer.compare(o2.r + o2.c, o1.r + o1.c);
             if(task != 0) return task;
@@ -161,13 +156,6 @@ public class Main {
         }
 
         return p;
-    }
-
-    private static void print_rabbits(){
-        for(Rabbit rabbit : rabbits.values()){
-            System.out.println(rabbit.r + ", " + rabbit.c + ", " + rabbit.jump_count + " => " + discount_point[rabbit.idx] + " : " + point[rabbit.idx]);
-        }
-        System.out.println();
     }
 }
 
