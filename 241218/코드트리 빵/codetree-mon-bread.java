@@ -77,7 +77,7 @@ public class Main {
             for(Integer key : rmKeys){
                 people.remove(key);
             }
-
+            
             if(time < M){ // 인원 투입
                 int[] dest_pos = dest[time];
                 
@@ -116,19 +116,17 @@ public class Main {
             }
         }
 
-        PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> {
-            int task1 = Integer.compare(o1[2], o2[2]);
-            return task1 == 0 ? Integer.compare(o1[3], o2[3]) : task1;
-        });
+        Queue<int[]> q = new ArrayDeque<>();
 
-        pq.add(new int[]{from[0], from[1], 0, 0});
+        q.add(new int[]{from[0], from[1], 0});
         visit[from[0]][from[1]][0] = 0;
 
-        while(!pq.isEmpty()){
-            int[] info = pq.poll();
+        while(!q.isEmpty()){
+            int[] info = q.poll();
             int r = info[0];
             int c = info[1];
             int cnt = info[2];
+
             if(r == to[0] && c == to[1]) break;
             for(int i = 0; i < 4; i++){
                 int nr = r + dr[i];
@@ -138,10 +136,10 @@ public class Main {
                 visit[nr][nc][0] = cnt + 1;
                 visit[nr][nc][1] = r;
                 visit[nr][nc][2] = c;
-                pq.add(new int[]{nr, nc, cnt + 1, i});
+                q.add(new int[]{nr, nc, cnt + 1});
             }
         }
-
+        
         return visit;
     }
 }
