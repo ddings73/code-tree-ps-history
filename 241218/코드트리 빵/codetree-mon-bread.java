@@ -39,29 +39,6 @@ public class Main {
         int time = 0;
         Map<Integer, int[]> people = new HashMap<>();
         while(time <= N*N){
-            if(time < M){ // 인원 투입
-                int[] dest_pos = dest[time];
-                
-                PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2)->{
-                    int task1 = Integer.compare(o1[2], o2[2]);
-                    if(task1 == 0){
-                        int task2 = Integer.compare(o1[0], o2[0]);
-                        return task2 == 0 ? Integer.compare(o1[1], o2[1]) : task2;
-                    }
-                    return task1;
-                });
-
-                for(int key = 0; key < campIdx; key++){
-                    int[] camp = baseCamp.get(key);
-                    if(map[camp[0]][camp[1]] == -1) continue;
-                    int[][][] dist_map = getDistance(camp, dest_pos);
-                    pq.add(new int[]{camp[0], camp[1], dist_map[dest_pos[0]][dest_pos[1]][0]});
-                }
-                int[] camp_info = pq.poll();
-                map[camp_info[0]][camp_info[1]] = -1;
-                people.put(time, new int[]{camp_info[0], camp_info[1]});
-            }
-
             if(time >= M && people.isEmpty()) break; 
 
             for(Integer key : people.keySet()){
@@ -83,7 +60,6 @@ public class Main {
                     r = nr;
                     c = nc;
                 }
-
                 people.put(key, pos);
             }
 
@@ -102,6 +78,30 @@ public class Main {
                 people.remove(key);
             }
 
+            if(time < M){ // 인원 투입
+                int[] dest_pos = dest[time];
+                
+                PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2)->{
+                    int task1 = Integer.compare(o1[2], o2[2]);
+                    if(task1 == 0){
+                        int task2 = Integer.compare(o1[0], o2[0]);
+                        return task2 == 0 ? Integer.compare(o1[1], o2[1]) : task2;
+                    }
+                    return task1;
+                });
+
+                for(int key = 0; key < campIdx; key++){
+                    int[] camp = baseCamp.get(key);
+                    if(map[camp[0]][camp[1]] == -1) continue;
+                    int[][][] dist_map = getDistance(camp, dest_pos);
+                    if(dist_map[dest_pos[0]][dest_pos[1]][0] == -1) continue;
+                    pq.add(new int[]{camp[0], camp[1], dist_map[dest_pos[0]][dest_pos[1]][0]});
+                }
+                int[] camp_info = pq.poll();
+                map[camp_info[0]][camp_info[1]] = -1;
+                people.put(time, new int[]{camp_info[0], camp_info[1]});
+            }
+
             time++;
         }
 
@@ -116,12 +116,16 @@ public class Main {
             }
         }
 
-        Queue<int[]> q = new ArrayDeque<>();
-        q.add(new int[]{from[0], from[1], 0});
+        PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> {
+            int task1 = Integer.compare(o1[2], o2[2]);
+            return task1 == 0 ? Integer.compare(o1[3], o2[3]) : task1;
+        });
+
+        pq.add(new int[]{from[0], from[1], 0, 0});
         visit[from[0]][from[1]][0] = 0;
 
-        while(!q.isEmpty()){
-            int[] info = q.poll();
+        while(!pq.isEmpty()){
+            int[] info = pq.poll();
             int r = info[0];
             int c = info[1];
             int cnt = info[2];
@@ -134,7 +138,7 @@ public class Main {
                 visit[nr][nc][0] = cnt + 1;
                 visit[nr][nc][1] = r;
                 visit[nr][nc][2] = c;
-                q.add(new int[]{nr, nc, cnt + 1});
+                pq.add(new int[]{nr, nc, cnt + 1, i});
             }
         }
 
