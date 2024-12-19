@@ -59,10 +59,12 @@ public class Main {
                 front.nxt = belt[dst];
                 belt[dst].prev = front;
 
-                int prev = front.dq.peekLast();
-                int nxt = belt[dst].dq.peekFirst();
-                info[prev][1] = nxt;
-                info[nxt][0] = prev;
+                if(!belt[dst].dq.isEmpty()){
+                    int prev = front.dq.peekLast();
+                    int nxt = belt[dst].dq.peekFirst();
+                    info[prev][1] = nxt;
+                    info[nxt][0] = prev;
+                }
 
                 belt[dst] = belt[src];
                 belt[src] = new Node();
