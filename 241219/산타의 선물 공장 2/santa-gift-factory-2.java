@@ -69,7 +69,7 @@ public class Main {
                 belt[src] = new Node();
 
                 while(front != null){
-                    front.size = front.dq.size() + front.nxt.size;
+                    front.size = front.nxt == null ? front.dq.size() : front.dq.size() + front.nxt.size;
                     front = front.prev;
                 }
 
