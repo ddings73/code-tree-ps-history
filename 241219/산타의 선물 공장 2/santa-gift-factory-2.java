@@ -56,10 +56,9 @@ public class Main {
                 while(front.nxt != null){
                     front = front.nxt;
                 }
-                front.nxt = belt[dst];
-                belt[dst].prev = front;
-
                 if(!belt[dst].dq.isEmpty()){
+                    front.nxt = belt[dst];
+                    belt[dst].prev = front;
                     int prev = front.dq.peekLast();
                     int nxt = belt[dst].dq.peekFirst();
                     info[prev][1] = nxt;
