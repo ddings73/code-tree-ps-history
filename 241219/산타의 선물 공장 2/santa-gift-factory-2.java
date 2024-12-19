@@ -137,58 +137,36 @@ public class Main {
                 if(srcSize > 1){
                     int len = Math.floorDiv(srcSize, 2);
 
-                    Node head = belt[src];
-                    Node prev = null;
-                    Node node = head;
-                    int size = 0;
-                    while(size + node.dq.size() < len){
-                        size += node.dq.size();
-                        prev = node;
+                    Node newNode = new Node();
+                    Node node = belt[src];
+                    while(newNode.size < len){
+                        while(newNode.size < len && !node.dq.isEmpty()){
+                            newNode.dq.addLast(node.dq.pollFirst());
+                            newNode.size++;
+                        }
+
+                        if(newNode.size == len) break;
                         node = node.nxt;
                     }
 
-                    List<Integer> list = new ArrayList<>(node.dq);
-                    int gap = len - size;
-                    ArrayDeque<Integer> left = new ArrayDeque<>(list.subList(0, gap));
-                    ArrayDeque<Integer> right = new ArrayDeque<>(list.subList(gap, list.size()));
-                    
-                    if(right.isEmpty() && node.nxt != null){
-                        belt[src] = node.nxt;
+                    if(belt[dst].dq.isEmpty()){
+                        info[newNode.dq.peekLast()][1] = 0;
                     }else{
-                        Node newNode = new Node();
-                        newNode.dq = right;
-
-                        if(node.nxt != null){
-                            newNode.nxt = node.nxt;
-                            node.nxt.prev = newNode;
-                        }
-
-                        newNode.size = newNode.nxt == null ? newNode.dq.size() : newNode.dq.size() + newNode.nxt.size;
-                        belt[src] = newNode;
+                        newNode.nxt = belt[dst];
+                        belt[dst].prev = newNode;
+                        newNode.size += belt[dst].size;
+                        info[newNode.dq.peekLast()][1] = belt[dst].dq.peekFirst();
+                        info[belt[dst].dq.peekFirst()][0] = newNode.dq.peekLast();
                     }
-                    if(!belt[src].dq.isEmpty()) info[belt[src].dq.peekFirst()][0] = 0;
+                    belt[dst] = newNode;
 
-                    node.dq = left;
-                    if(!belt[dst].dq.isEmpty()){
-                         node.nxt = belt[dst];
-                         belt[dst].prev = node;
-                         int front = node.dq.peekLast();
-                         int back = belt[dst].dq.peekFirst();
-
-                         info[front][1] = back;
-                         info[back][0] = front;
-                    }else{
-                        node.nxt = null;
-                        info[node.dq.peekLast()][1] = 0;
-                    }
-                    belt[dst] = head;
-                    
-
-                    while(node != null){
-                        node.size = node.nxt == null ? node.dq.size() : node.dq.size() + node.nxt.size;
-                        node = node.prev;
-                    }
+                    if(node.dq.isEmpty()) node = node.nxt;
+                    node.size = node.nxt == null ? node.dq.size() : node.dq.size() + node.nxt.size;
+                    node.prev = null;
+                    info[node.dq.peekFirst()][0] = 0;
+                    belt[src] = node;
                 }
+
                 sb.append(belt[dst].size).append("\n");
             }else if("500".equals(command)){
                 int p_num = Integer.parseInt(stk.nextToken());
@@ -211,23 +189,7 @@ public class Main {
 
                 int value = p_front + (2 * p_last) + (3 * p_size);
                 sb.append(value).append("\n");
-            }           
-
-            // if(Q > 5) continue;
-            // System.out.println("# " + command);
-            // for(int i = 1; i <= N; i++){
-            //     System.out.print("# belt " + i + " => " + belt[i].dq + " " + belt[i].size + " ");
-            //     Node node = belt[i];
-            //     node = node.nxt;
-            //     while(node != null){
-            //         System.out.print(node.dq + " ");
-            //         node = node.nxt;
-            //     }
-            //     System.out.println();
-            // }
-            // for(int i = 1; i <= M; i++){
-            //     System.out.println("# " + i + " => " + Arrays.toString(info[i]));
-            // }
+            }    
         }
 
         System.out.println(sb.toString());
