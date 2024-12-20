@@ -127,7 +127,12 @@ public class Main {
                         result = i;
                         Box box = box_map.get(f_id); 
 
+                        if(box == belt.head) continue;
                         box.prev.nxt = null;
+                        
+                        if(box == belt.tail){
+                            belt.tail = box.prev;
+                        }
                         belt.tail.nxt = belt.head;
                         belt.head.prev = belt.tail;
 
