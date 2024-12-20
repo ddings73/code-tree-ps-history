@@ -32,7 +32,7 @@ public class Main {
         }
 
         public void broke(){
-            this.boxIDSet.clear();
+            this.boxIDSet = new HashSet<>();
             this.head = null;
             this.tail = null;
         }
@@ -87,7 +87,6 @@ public class Main {
                         w_sum += head.w;
                         belt.head = head.nxt;
                         if(belt.head != null) belt.head.prev = null;
-
                         belt.boxIDSet.remove(head.id);
                     }else if(head.nxt != null){
                         belt.head = head.nxt;
@@ -126,19 +125,15 @@ public class Main {
                     if(belt.boxIDSet.contains(f_id)){
                         result = i;
                         Box box = box_map.get(f_id); 
-
                         if(box == belt.head) continue;
-                        box.prev.nxt = null;
-                        
-                        if(box == belt.tail){
-                            belt.tail = box.prev;
-                        }
                         belt.tail.nxt = belt.head;
                         belt.head.prev = belt.tail;
+                        belt.tail = box.prev == null ? box : box.prev;
 
+                        box.prev.nxt = null;
                         box.prev = null;
+
                         belt.head = box;
-                        box_map.remove(f_id);
                     }
                 }
                 sb.append(result).append("\n");
