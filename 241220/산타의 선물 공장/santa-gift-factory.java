@@ -86,7 +86,7 @@ public class Main {
                     if(head.w <= w_max){
                         w_sum += head.w;
                         belt.head = head.nxt;
-                        belt.head.prev = null;
+                        if(belt.head != null) belt.head.prev = null;
 
                         belt.boxIDSet.remove(head.id);
                     }else if(head.nxt != null){
