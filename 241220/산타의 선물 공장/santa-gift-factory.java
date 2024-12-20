@@ -78,7 +78,7 @@ public class Main {
                 }
             }else if("200".equals(command)){
                 int w_max = Integer.parseInt(stk.nextToken());
-                int w_sum = 0;
+                long w_sum = 0;
                 for(int i = 1; i <= M; i++){
                     Belt belt = belt_arr[i];
                     Box head = belt.head;
