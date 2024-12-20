@@ -89,7 +89,7 @@ public class Main {
                         belt.head.prev = null;
 
                         belt.boxIDSet.remove(head.id);
-                    }else{
+                    }else if(head.nxt != null){
                         belt.head = head.nxt;
                         belt.head.prev = null;
 
