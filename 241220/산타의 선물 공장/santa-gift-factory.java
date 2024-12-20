@@ -109,9 +109,20 @@ public class Main {
                         Box box = box_map.get(r_id);
 
                         belt.boxIDSet.remove(r_id);
-                        if(box.prev != null) box.prev.nxt = box.nxt;
-                        if(box.nxt != null) box.nxt.prev = box.prev;
-
+                        if(box == belt.head && box == belt.tail){
+                            belt.head = null;
+                            belt.tail = null;
+                        }else if(box == belt.head){
+                            belt.head = box.nxt;
+                            belt.head.prev = null;
+                        }else if(box == belt.tail){
+                            belt.tail = box.prev;
+                            belt.tail.nxt = null;
+                        }else{
+                            box.prev.nxt = box.nxt;
+                            box.nxt.prev = box.prev;
+                        }
+                        
                         box_map.remove(r_id);
                         result = r_id;
                     }
@@ -146,7 +157,7 @@ public class Main {
                     for(int i = 1; i <= M; i++){
                         int idx = b_num + i;
                         if(idx > M) idx -= M;
-                        if(belt_arr[idx].broken) continue;
+                        if(belt_arr[idx].broken || belt_arr[b_num].head == null) continue;
                         Belt belt = belt_arr[idx];
                         Belt broken_belt = belt_arr[b_num];
 
