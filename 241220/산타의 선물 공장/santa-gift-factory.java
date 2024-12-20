@@ -110,8 +110,8 @@ public class Main {
                         Box box = box_map.get(r_id);
 
                         belt.boxIDSet.remove(r_id);
-                        box.prev.nxt = box.nxt;
-                        box.nxt.prev = box.prev;
+                        if(box.prev != null) box.prev.nxt = box.nxt;
+                        if(box.nxt != null) box.nxt.prev = box.prev;
 
                         box_map.remove(r_id);
                         result = r_id;
