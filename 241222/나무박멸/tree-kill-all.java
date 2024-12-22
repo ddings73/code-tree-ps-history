@@ -60,6 +60,7 @@ public class Main {
                     if(toxic[i][j] > 0) toxic[i][j]--;
                 }
             }
+
             Queue<Tree> sub = new ArrayDeque<>();
             while(!q.isEmpty()){
                 Tree tree = q.poll();
@@ -77,10 +78,11 @@ public class Main {
                     int nr = tree.r + dr[i];
                     int nc = tree.c + dc[i];
                     if(nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
-                    if(map[nr][nc] <= 0) continue;
+                    if(map[nr][nc] <= 0 || toxic[nr][nc] > 0) continue;
                     map[tree.r][tree.c]++;
                 }
             }
+
 
             // step2
             boolean[][] visit = new boolean[N][N];
@@ -97,27 +99,28 @@ public class Main {
                     if(nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
                     if(map[nr][nc] != 0 || toxic[nr][nc] > 0) continue;
                     count++;
-
                     Tree newTree = new Tree(nr, nc);
                     tmpQ.add(newTree);
-                    if(!visit[nr][nc]){
-                        visit[nr][nc] = true;
-                        sub.add(newTree);
-                    }
                 }
 
                 while(!tmpQ.isEmpty()){
                     Tree newTree = tmpQ.poll();
+                    if((map[tree.r][tree.c] / count) > 0 && !visit[newTree.r][newTree.c]){
+                        visit[newTree.r][newTree.c] = true;
+                        sub.add(newTree);
+                    }
                     newMap[newTree.r][newTree.c] += (map[tree.r][tree.c] / count);
                 }
 
                 sub.add(tree);
             }
+
             for(int i = 0; i < N; i++){
                 for(int j = 0; j < N; j++){
                     map[i][j] += newMap[i][j];
                 }
             }
+
             q = new ArrayDeque<>(sub);
 
             // step3
@@ -125,7 +128,7 @@ public class Main {
             int r = 0, c = 0;
             for(Tree tree : q){
                 int kill = tree.areaCheck();
-                if(max_kill < kill){
+                if(max_kill < kill || (max_kill == kill && (tree.r < r || (tree.r == r && tree.c < c)))){
                     max_kill = kill;
                     r = tree.r;
                     c = tree.c;
@@ -151,3 +154,26 @@ public class Main {
         System.out.println(kill_count);
     }
 }
+
+
+/*
+0 0 0 0 5
+0 5 5 -1 5
+0 -1 0 0 0
+0 0 0 -1 0
+-1 0 2 0 2
+
+0 3 3 0 6
+3 6 0 -1 0
+0 -1 3 0 6
+0 0 0 -1 1
+-1 0 2 1 2
+18
+
+~ 5 ~ ~ 6
+4 ~ ~ -1 ~
+~ -1 ~ 9 9
+0 5 3 -1 5
+-1 2 6 5 6
+24
+*/
