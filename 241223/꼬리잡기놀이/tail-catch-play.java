@@ -114,6 +114,7 @@ public class Main {
                         int new_c = info[1] + dc[j];
                         if(new_r < 0 || new_r >= N || new_c < 0 || new_c >= N || map[new_r][new_c] == 0) continue;
                         if(visit[new_r][new_c] || map[new_r][new_c] == 4) continue;
+                        if(map[info[0]][info[1]] == 3 && map[new_r][new_c] == 1) continue;
                         visit[new_r][new_c] = true;
                         q.add(new int[]{new_r, new_c, info[2] + 1});
                     }
