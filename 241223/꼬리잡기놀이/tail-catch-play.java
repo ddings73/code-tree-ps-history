@@ -31,7 +31,7 @@ public class Main {
         for(int round = 0; round < K; round++){
             while(!teamHead.isEmpty()){
                 int[] head_pos = teamHead.poll();
-
+                int[] head = new int[2];
                 boolean[][] visit = new boolean[N][N];
                 visit[head_pos[0]][head_pos[1]] = true;
 
@@ -44,7 +44,8 @@ public class Main {
                         visit[nr][nc] = true;
                         q.add(new int[]{nr, nc, head_pos[0], head_pos[1]});
                     }else{
-                        map[nr][nc] = 1;
+                        head[0] = nr;
+                        head[1] = nc;
                     }
                 }
                 
@@ -69,8 +70,10 @@ public class Main {
                     }
                     if(q.isEmpty() && map[r][c] != 3) map[r][c] = 3;
                 }
+
+                map[head[0]][head[1]] = 1;
             }
-            
+
             int rnd = round % (4 * N);
             int d = rnd < N ? 0
                 : rnd < 2*N ? 1
@@ -88,7 +91,7 @@ public class Main {
                 : N - (rnd % N) - 1;
 
             boolean[][] visit = new boolean[N][N];
-            for(int i = 0; i < 7; i++){
+            for(int i = 0; i < N; i++){
                 int nr = r + (dr[d] * i);
                 int nc = c + (dc[d] * i);
                 if(map[nr][nc] == 4 || map[nr][nc] == 0 || visit[nr][nc]) continue;
@@ -122,6 +125,7 @@ public class Main {
 
                 map[head[0]][head[1]] = 3;
                 map[tail[0]][tail[1]] = 1;
+                break;
             }
 
             for(int i = 0; i < N; i++){
