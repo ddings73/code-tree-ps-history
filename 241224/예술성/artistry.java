@@ -5,6 +5,7 @@ public class Main {
     private static int N;
     private static int[][] map;
     private static Map<String, int[]> groups;
+    private static Map<String, Map<String, Integer>> group_relation;
 
     private static int[] dr = {-1, 1, 0, 0};
     private static int[] dc = {0, 0, -1, 1};
@@ -22,31 +23,19 @@ public class Main {
         int score = 0;
         for(int round = 0; round <= 3; round++){
             groups = new HashMap<>();
+            group_relation = new HashMap<>();
+
             String[][] gMap = getGroupInfo();
 
             Set<String> set = new HashSet<>();
             for(String g1_id : groups.keySet()){
                 set.add(g1_id);
                 for(String g2_id : groups.keySet()){
-                    if(set.contains(g2_id)) continue;
+                    if(set.contains(g2_id) || !group_relation.get(g1_id).containsKey(g2_id)) continue;
                     int[] v1 = groups.get(g1_id);
                     int[] v2 = groups.get(g2_id);
 
-                    int value = (v1[1] + v2[1]) * v1[0] * v2[0];
-                    
-                    int count = 0;
-                    for(int i = 0; i < N; i++){
-                        for(int j = 0; j < N; j++){
-                            if(!gMap[i][j].equals(g1_id)) continue;
-                            for(int k = 0; k < 4; k++){
-                                int nr = i + dr[k];
-                                int nc = j + dc[k];
-                                if(nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
-                                if(gMap[nr][nc].equals(g2_id)) count++;
-                            }
-                        }
-                    }
-                    value *= count;
+                    int value = (v1[1] + v2[1]) * v1[0] * v2[0] * group_relation.get(g1_id).get(g2_id);
                     score += value;
                 }
             }
@@ -89,6 +78,20 @@ public class Main {
 
                 
                 groups.put(group_id, new int[]{map[i][j], count});
+            }
+        }
+
+        for(int i = 0; i < N; i++){
+            for(int j = 0; j < N; j++){
+                if(!group_relation.containsKey(result[i][j])) group_relation.put(result[i][j], new HashMap<>());
+
+                Map<String, Integer> map = group_relation.get(result[i][j]);
+                for(int k = 0; k < 4; k++){
+                    int nr = i + dr[k];
+                    int nc = j + dc[k];
+                    if(nr < 0 || nr >= N || nc < 0 || nc >= N || result[i][j].equals(result[nr][nc])) continue;
+                    map.merge(result[nr][nc], 1, Integer::sum);
+                }
             }
         }
 
