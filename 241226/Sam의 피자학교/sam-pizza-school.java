@@ -61,7 +61,7 @@ public class Main {
 
             for(int i = 2; i < 4; i++){
                 for(int j = 0; j < col / 2; j++){
-                    rolled[i][j] = arr[i - 2][j + 2];
+                    rolled[i][j] = arr[i - 2][j + (col / 2)];
                 }
             }
 
