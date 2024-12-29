@@ -71,7 +71,7 @@ public class Main {
             ghost = new ArrayDeque<>(g_tmp);
 
             // 팩맨 이동
-            global_kill = 0;
+            global_kill = -1;
             global_visit = new int[N][N];
 
             int r = pacman[0];
