@@ -15,7 +15,7 @@ public class ReadmeMerge {
     private static final StringBuilder footer = new StringBuilder();
 
     public static void main(String[] args) {
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rootPath + "\\README.md")))){
+        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rootPath + "/README.md")))){
             writer.write(header.toString());
             Files.walk(Paths.get(rootPath))
                     .filter(Files::isRegularFile)
