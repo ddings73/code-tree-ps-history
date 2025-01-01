@@ -17,70 +17,90 @@ jobs:
     - name: Check out the repository
       uses: actions/checkout@v2
 
-    - name: Set up Node.js (Optional if you need JS dependencies)
-      uses: actions/setup-node@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        node-version: '14'
+        python-version: '3.8'
 
-    - name: Install dependencies (Optional, if needed)
+    - name: Merge all README.md files into a single one using Python
       run: |
-        npm install
+        import os
 
-    - name: Merge all README.md files into a single one
-      run: |
-        OUTPUT_FILE="README.md"
+        # 출력 파일 경로
+        output_file = "README.md"
 
-        if [ -f $OUTPUT_FILE ]; then
-          rm $OUTPUT_FILE
-        fi
+        # 기존에 README.md 파일이 있으면 삭제
+        if os.path.exists(output_file):
+            os.remove(output_file)
 
-        echo "# 📖 학습하기" > $OUTPUT_FILE
-        echo "" >> $OUTPUT_FILE
-        echo "# 🥇 실전 훈련" >> $OUTPUT_FILE
-        echo "|기록분류|이름|티어|유형|상태|최근 제출 코드|" >> $OUTPUT_FILE
-        echo "|---|---|---|---|---|---|" >> $OUTPUT_FILE
+        # 병합할 파일을 위한 헤더 작성
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write("# 📖 학습하기\n\n")
+            f.write("# 🥇 실전 훈련\n")
+            f.write("|기록분류|이름|티어|유형|상태|최근 제출 코드|\n")
+            f.write("|---|---|---|---|---|---|\n")
 
-        for folder in $(find . -type d -not -path '*/\.*'); do
-          README="$folder/README.md"
-          
-          if [ -f "$README" ]; then
-            TITLE=$(grep -oP '(?<=\#\#\s)(.*?)(?=\s\-\-)' "$README")
-            TIER=$(grep -oP '(?<=티어:)(.*?)(?=\n)' "$README")
-            TYPE=$(grep -oP '(?<=유형:)(.*?)(?=\n)' "$README")
-            STATUS=$(grep -oP '(?<=상태:)(.*?)(?=\n)' "$README")
-            CODE_LINK=$(grep -oP '(?<=코드 링크:)(.*?)(?=\n)' "$README")
+        # 하위 디렉토리를 순회하며 README.md 파일을 찾아 병합
+        for root, dirs, files in os.walk("."):
+            if "README.md" in files:
+                readme_path = os.path.join(root, "README.md")
+                
+                with open(readme_path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    title = None
+                    tier = None
+                    type_ = None
+                    status = None
+                    code_link = None
 
-            echo "|기출문제|[$TITLE](https://www.codetree.ai/training-field/frequent-problems/problems/$TITLE)|$TIER|$TYPE|$STATUS|[$CODE_LINK]($CODE_LINK)|" >> $OUTPUT_FILE
-          fi
-        done
+                    for line in lines:
+                        if line.startswith("## ") and not title:
+                            title = line.strip().replace("## ", "")
+                        if line.startswith("티어:"):
+                            tier = line.strip().replace("티어:", "").strip()
+                        if line.startswith("유형:"):
+                            type_ = line.strip().replace("유형:", "").strip()
+                        if line.startswith("상태:"):
+                            status = line.strip().replace("상태:", "").strip()
+                        if line.startswith("코드 링크:"):
+                            code_link = line.strip().replace("코드 링크:", "").strip()
 
-        echo "" >> $OUTPUT_FILE
-        echo "[b5]: https://img.shields.io/badge/Bronze_5-%235D3E31.svg" >> $OUTPUT_FILE
-        echo "[b4]: https://img.shields.io/badge/Bronze_4-%235D3E31.svg" >> $OUTPUT_FILE
-        echo "[b3]: https://img.shields.io/badge/Bronze_3-%235D3E31.svg" >> $OUTPUT_FILE
-        echo "[b2]: https://img.shields.io/badge/Bronze_2-%235D3E31.svg" >> $OUTPUT_FILE
-        echo "[b1]: https://img.shields.io/badge/Bronze_1-%235D3E31.svg" >> $OUTPUT_FILE
-        echo "[s5]: https://img.shields.io/badge/Silver_5-%23394960.svg" >> $OUTPUT_FILE
-        echo "[s4]: https://img.shields.io/badge/Silver_4-%23394960.svg" >> $OUTPUT_FILE
-        echo "[s3]: https://img.shields.io/badge/Silver_3-%23394960.svg" >> $OUTPUT_FILE
-        echo "[s2]: https://img.shields.io/badge/Silver_2-%23394960.svg" >> $OUTPUT_FILE
-        echo "[s1]: https://img.shields.io/badge/Silver_1-%23394960.svg" >> $OUTPUT_FILE
-        echo "[g5]: https://img.shields.io/badge/Gold_5-%23FFC433.svg" >> $OUTPUT_FILE
-        echo "[g4]: https://img.shields.io/badge/Gold_4-%23FFC433.svg" >> $OUTPUT_FILE
-        echo "[g3]: https://img.shields.io/badge/Gold_3-%23FFC433.svg" >> $OUTPUT_FILE
-        echo "[g2]: https://img.shields.io/badge/Gold_2-%23FFC433.svg" >> $OUTPUT_FILE
-        echo "[g1]: https://img.shields.io/badge/Gold_1-%23FFC433.svg" >> $OUTPUT_FILE
-        echo "[p5]: https://img.shields.io/badge/Platinum_5-%2376DDD8.svg" >> $OUTPUT_FILE
-        echo "[p4]: https://img.shields.io/badge/Platinum_4-%2376DDD8.svg" >> $OUTPUT_FILE
-        echo "[p3]: https://img.shields.io/badge/Platinum_3-%2376DDD8.svg" >> $OUTPUT_FILE
-        echo "[p2]: https://img.shields.io/badge/Platinum_2-%2376DDD8.svg" >> $OUTPUT_FILE
-        echo "[p1]: https://img.shields.io/badge/Platinum_1-%2376DDD8.svg" >> $OUTPUT_FILE
-        echo "[passed]: https://img.shields.io/badge/Passed-%23009D27.svg" >> $OUTPUT_FILE
-        echo "[failed]: https://img.shields.io/badge/Failed-%23D24D57.svg" >> $OUTPUT_FILE
-        echo "[easy]: https://img.shields.io/badge/쉬움-%235cb85c.svg?for-the-badge" >> $OUTPUT_FILE
-        echo "[medium]: https://img.shields.io/badge/보통-%23FFC433.svg?for-the-badge" >> $OUTPUT_FILE
-        echo "[hard]: https://img.shields.io/badge/어려움-%23D24D57.svg?for-the-badge" >> $OUTPUT_FILE
+                    if title and tier and type_ and status and code_link:
+                        with open(output_file, 'a', encoding='utf-8') as f_out:
+                            f_out.write(f"|기출문제|[{title}](https://www.codetree.ai/training-field/frequent-problems/problems/{title})|{tier}|{type_}|{status}|[{code_link}]({code_link})|\n")
 
+        # 하단에 이미지 배지 추가
+        badge_urls = [
+            ("b5", "https://img.shields.io/badge/Bronze_5-%235D3E31.svg"),
+            ("b4", "https://img.shields.io/badge/Bronze_4-%235D3E31.svg"),
+            ("b3", "https://img.shields.io/badge/Bronze_3-%235D3E31.svg"),
+            ("b2", "https://img.shields.io/badge/Bronze_2-%235D3E31.svg"),
+            ("b1", "https://img.shields.io/badge/Bronze_1-%235D3E31.svg"),
+            ("s5", "https://img.shields.io/badge/Silver_5-%23394960.svg"),
+            ("s4", "https://img.shields.io/badge/Silver_4-%23394960.svg"),
+            ("s3", "https://img.shields.io/badge/Silver_3-%23394960.svg"),
+            ("s2", "https://img.shields.io/badge/Silver_2-%23394960.svg"),
+            ("s1", "https://img.shields.io/badge/Silver_1-%23394960.svg"),
+            ("g5", "https://img.shields.io/badge/Gold_5-%23FFC433.svg"),
+            ("g4", "https://img.shields.io/badge/Gold_4-%23FFC433.svg"),
+            ("g3", "https://img.shields.io/badge/Gold_3-%23FFC433.svg"),
+            ("g2", "https://img.shields.io/badge/Gold_2-%23FFC433.svg"),
+            ("g1", "https://img.shields.io/badge/Gold_1-%23FFC433.svg"),
+            ("p5", "https://img.shields.io/badge/Platinum_5-%2376DDD8.svg"),
+            ("p4", "https://img.shields.io/badge/Platinum_4-%2376DDD8.svg"),
+            ("p3", "https://img.shields.io/badge/Platinum_3-%2376DDD8.svg"),
+            ("p2", "https://img.shields.io/badge/Platinum_2-%2376DDD8.svg"),
+            ("p1", "https://img.shields.io/badge/Platinum_1-%2376DDD8.svg"),
+            ("passed", "https://img.shields.io/badge/Passed-%23009D27.svg"),
+            ("failed", "https://img.shields.io/badge/Failed-%23D24D57.svg"),
+            ("easy", "https://img.shields.io/badge/쉬움-%235cb85c.svg?for-the-badge"),
+            ("medium", "https://img.shields.io/badge/보통-%23FFC433.svg?for-the-badge"),
+            ("hard", "https://img.shields.io/badge/어려움-%23D24D57.svg?for-the-badge")
+        ]
+
+        with open(output_file, 'a', encoding='utf-8') as f:
+            for label, url in badge_urls:
+                f.write(f"[{label}]: {url}\n")
     - name: Commit changes
       run: |
         git config user.name "ddings73"
