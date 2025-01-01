@@ -107,7 +107,7 @@ jobs:
       run: |
         git config user.name "ddings73"
         git config user.email "ddings7303@gmail.com"
-        git add $OUTPUT_FILE
+        git add .
         git commit -m "Update merged README file"
         git push
       env:
