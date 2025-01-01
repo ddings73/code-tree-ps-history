@@ -24,6 +24,7 @@ jobs:
 
     - name: Merge all README.md files into a single one using Python
       run: |
+        python <<EOF
         import os
 
         # 출력 파일 경로
@@ -101,6 +102,7 @@ jobs:
         with open(output_file, 'a', encoding='utf-8') as f:
             for label, url in badge_urls:
                 f.write(f"[{label}]: {url}\n")
+        EOF
     - name: Commit changes
       run: |
         git config user.name "ddings73"
