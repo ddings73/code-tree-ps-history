@@ -46,32 +46,28 @@ jobs:
 
         # 하위 디렉토리를 순회하며 README.md 파일을 찾아 병합
         for root, dirs, files in os.walk("."):
-            if "README.md" in files:
-                readme_path = os.path.join(root, "README.md")
+            for file in files:
+              if file.lower() == "readme.md" and root != ".":
+                readme_path = os.path.join(root, file)
                 
+                start_extraction = false
                 with open(readme_path, 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
-                    title = None
-                    tier = None
-                    type_ = None
-                    status = None
-                    code_link = None
+                  if "|기록분류|" in line and "|이름|" in line and "|티어|" in line and "|유형|" in line and "|상태|" in line and "|최근 제출 코드|" in line:
+                    start_extracting = True  # 이 이후의 라인부터 데이터 추출 시작
+                  elif start_extraction:
+                    if "|" in line and "-" not in line:
+                        columns = line.split('|')
+                        if len(columns) > 1:
+                            title = columns[1].strip()  # 이름
+                            tier = columns[2].strip()   # 티어
+                            type_ = columns[3].strip()  # 유형
+                            status = columns[4].strip() # 상태
+                            code_link = columns[5].strip() # 최근 제출 코드
 
-                    for line in lines:
-                        if line.startswith("## ") and not title:
-                            title = line.strip().replace("## ", "")
-                        if line.startswith("티어:"):
-                            tier = line.strip().replace("티어:", "").strip()
-                        if line.startswith("유형:"):
-                            type_ = line.strip().replace("유형:", "").strip()
-                        if line.startswith("상태:"):
-                            status = line.strip().replace("상태:", "").strip()
-                        if line.startswith("코드 링크:"):
-                            code_link = line.strip().replace("코드 링크:", "").strip()
 
-                    if title and tier and type_ and status and code_link:
-                        with open(output_file, 'a', encoding='utf-8') as f_out:
-                            f_out.write(f"|기출문제|[{title}](https://www.codetree.ai/training-field/frequent-problems/problems/{title})|{tier}|{type_}|{status}|[{code_link}]({code_link})|\n")
+                            if title and tier and type_ and status and code_link:
+                                with open(output_file, 'a', encoding='utf-8') as f_out:
+                                    f_out.write(f"|기출문제|[{title}](https://www.codetree.ai/training-field/frequent-problems/problems/{title})|{tier}|{type_}|{status}|[{code_link}]({code_link})|\n")
 
         # 하단에 이미지 배지 추가
         badge_urls = [
