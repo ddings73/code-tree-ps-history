@@ -10,74 +10,91 @@ on:
       - '**/README.md'  # PR 생성 시 트리거
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # 워크플로우를 실행할 OS 환경
-    
-    permissions:  # GITHUB_TOKEN의 권한 명시
-      contents: write  # 커밋 및 푸시를 허용
+  merge-readmes:
+    runs-on: ubuntu-latest
 
     steps:
-      # 1. 코드를 체크아웃
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Check out the repository
+      uses: actions/checkout@v2
 
-      # 2. Python 설정
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9  # Python 버전 지정
+    - name: Set up Node.js (Optional if you need JS dependencies)
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-      # 3. Python 스크립트 실행
-      - name: Merge README files
-        run: |
-          import os
-          import markdown
-          from collections import defaultdict
+    - name: Install dependencies (Optional, if needed)
+      run: |
+        npm install
 
-          def merge_tables(directory, output_file):
-              # 병합할 테이블을 저장할 딕셔너리
-              combined_tables = defaultdict(list)
-              
-              # 모든 README.md 파일 탐색
-              for subdir, dirs, files in os.walk(directory):
-                  for file in files:
-                      if file == "README.md":
-                          file_path = os.path.join(subdir, file)
-                          with open(file_path, 'r', encoding='utf-8') as f:
-                              content = f.read()
-                              
-                              # 각 표의 제목을 기준으로 테이블 구분 (예: '📖 학습하기', '🥇 실전 훈련')
-                              for line in content.splitlines():
-                                  if line.startswith("## "):  # 제목이 있을 때
-                                      section = line.strip().split(" ")[1]  # 제목 이름 (예: '학습하기', '실전 훈련')
-                                  if line.startswith("|"):  # 테이블 데이터
-                                      combined_tables[section].append(line)
-              
-              # 병합된 내용을 출력 파일에 작성
-              with open(output_file, 'w', encoding='utf-8') as outfile:
-                  # Markdown 문법으로 파일 작성
-                  
-                  # Write '학습하기' table
-                  outfile.write("## 📖 학습하기\n\n")
-                  for table in combined_tables["학습하기"]:
-                      outfile.write(table + "\n\n")
+    - name: Merge all README.md files into a single one
+      run: |
+        # 각 폴더를 순회하여 README.md 파일을 읽어 하나의 파일로 병합합니다.
+        OUTPUT_FILE="README.md"
 
-                  # Write '실전 훈련' table
-                  outfile.write("## 🥇 실전 훈련\n\n")
-                  for table in combined_tables["실전 훈련"]:
-                      outfile.write(table + "\n\n")
+        # 기존에 merged_README.md 파일이 있으면 삭제합니다.
+        if [ -f $OUTPUT_FILE ]; then
+          rm $OUTPUT_FILE
+        fi
 
-          # 현재 디렉토리에서 README.md 파일 병합
-          merge_tables(".", "README.md")
+        # 기본 구조 추가
+        echo "# 📖 학습하기" > $OUTPUT_FILE
+        echo "" >> $OUTPUT_FILE
+        echo "# 🥇 실전 훈련" >> $OUTPUT_FILE
+        echo "|기록분류|이름|티어|유형|상태|최근 제출 코드|" >> $OUTPUT_FILE
+        echo "|---|---|---|---|---|---|" >> $OUTPUT_FILE
 
+        # 각 폴더에서 README.md 파일을 찾아서 필요한 정보 추출
+        for folder in $(find . -type d -not -path '*/\.*'); do
+          README="$folder/README.md"
+          
+          if [ -f "$README" ]; then
+            # 각 README.md 파일에서 원하는 정보 추출 (예: 문제 링크, 티어, 유형 등)
+            TITLE=$(grep -oP '(?<=\#\#\s)(.*?)(?=\s\-\-)' "$README")
+            TIER=$(grep -oP '(?<=티어:)(.*?)(?=\n)' "$README")
+            TYPE=$(grep -oP '(?<=유형:)(.*?)(?=\n)' "$README")
+            STATUS=$(grep -oP '(?<=상태:)(.*?)(?=\n)' "$README")
+            CODE_LINK=$(grep -oP '(?<=코드 링크:)(.*?)(?=\n)' "$README")
 
-      # 4. 변경된 파일 커밋 및 푸시
-      - name: Commit changes
-        run: |
-          git config user.name "ddings73"
-          git config user.email "ddings7303@gmail.com"
-          git add README.md
-          git commit -m "README 병합"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
+            # 테이블 형식으로 merged_README.md에 추가
+            echo "|기출문제|[$TITLE](https://www.codetree.ai/training-field/frequent-problems/problems/$TITLE)|$TIER|$TYPE|$STATUS|[$CODE_LINK]($CODE_LINK)|" >> $OUTPUT_FILE
+          fi
+        done
+
+        # 배지 이미지 링크 추가
+        echo "" >> $OUTPUT_FILE
+        echo "[b5]: https://img.shields.io/badge/Bronze_5-%235D3E31.svg" >> $OUTPUT_FILE
+        echo "[b4]: https://img.shields.io/badge/Bronze_4-%235D3E31.svg" >> $OUTPUT_FILE
+        echo "[b3]: https://img.shields.io/badge/Bronze_3-%235D3E31.svg" >> $OUTPUT_FILE
+        echo "[b2]: https://img.shields.io/badge/Bronze_2-%235D3E31.svg" >> $OUTPUT_FILE
+        echo "[b1]: https://img.shields.io/badge/Bronze_1-%235D3E31.svg" >> $OUTPUT_FILE
+        echo "[s5]: https://img.shields.io/badge/Silver_5-%23394960.svg" >> $OUTPUT_FILE
+        echo "[s4]: https://img.shields.io/badge/Silver_4-%23394960.svg" >> $OUTPUT_FILE
+        echo "[s3]: https://img.shields.io/badge/Silver_3-%23394960.svg" >> $OUTPUT_FILE
+        echo "[s2]: https://img.shields.io/badge/Silver_2-%23394960.svg" >> $OUTPUT_FILE
+        echo "[s1]: https://img.shields.io/badge/Silver_1-%23394960.svg" >> $OUTPUT_FILE
+        echo "[g5]: https://img.shields.io/badge/Gold_5-%23FFC433.svg" >> $OUTPUT_FILE
+        echo "[g4]: https://img.shields.io/badge/Gold_4-%23FFC433.svg" >> $OUTPUT_FILE
+        echo "[g3]: https://img.shields.io/badge/Gold_3-%23FFC433.svg" >> $OUTPUT_FILE
+        echo "[g2]: https://img.shields.io/badge/Gold_2-%23FFC433.svg" >> $OUTPUT_FILE
+        echo "[g1]: https://img.shields.io/badge/Gold_1-%23FFC433.svg" >> $OUTPUT_FILE
+        echo "[p5]: https://img.shields.io/badge/Platinum_5-%2376DDD8.svg" >> $OUTPUT_FILE
+        echo "[p4]: https://img.shields.io/badge/Platinum_4-%2376DDD8.svg" >> $OUTPUT_FILE
+        echo "[p3]: https://img.shields.io/badge/Platinum_3-%2376DDD8.svg" >> $OUTPUT_FILE
+        echo "[p2]: https://img.shields.io/badge/Platinum_2-%2376DDD8.svg" >> $OUTPUT_FILE
+        echo "[p1]: https://img.shields.io/badge/Platinum_1-%2376DDD8.svg" >> $OUTPUT_FILE
+        echo "[passed]: https://img.shields.io/badge/Passed-%23009D27.svg" >> $OUTPUT_FILE
+        echo "[failed]: https://img.shields.io/badge/Failed-%23D24D57.svg" >> $OUTPUT_FILE
+        echo "[easy]: https://img.shields.io/badge/쉬움-%235cb85c.svg?for-the-badge" >> $OUTPUT_FILE
+        echo "[medium]: https://img.shields.io/badge/보통-%23FFC433.svg?for-the-badge" >> $OUTPUT_FILE
+        echo "[hard]: https://img.shields.io/badge/어려움-%23D24D57.svg?for-the-badge" >> $OUTPUT_FILE
+
+    # 변경된 파일 커밋 및 푸시
+    - name: Commit changes
+      run: |
+        git config user.name "ddings73"
+        git config user.email "ddings7303@gmail.com"
+        git add $OUTPUT_FILE
+        git commit -m "Update merged README file"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
