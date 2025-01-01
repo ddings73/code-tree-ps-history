@@ -12,6 +12,9 @@ on:
 jobs:
   merge-readmes:
     runs-on: ubuntu-latest
+    
+    permissions:  # GITHUB_TOKEN의 권한 명시
+      contents: write  # 커밋 및 푸시를 허용
 
     steps:
     - name: Check out the repository
