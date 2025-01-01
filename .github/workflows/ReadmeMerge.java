@@ -17,7 +17,11 @@ public class ReadmeMerge {
     public static void main(String[] args) {
         try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rootPath + "/README.md")))){
             writer.write(header.toString());
+
+            Queue<String> q = new ArrayDeque<>();
+            Map<String, String> map = new HashMap<>();
             Files.walk(Paths.get(rootPath))
+                    .sorted(Comparator.comparing(Path::toString))
                     .filter(Files::isRegularFile)
                     .filter(path -> "README.md".equalsIgnoreCase(path.getFileName().toString()))
                     .filter(path -> !path.toAbsolutePath().toString().equals(Paths.get(rootPath).toAbsolutePath().toString()))
@@ -29,15 +33,16 @@ public class ReadmeMerge {
                                     br.readLine(); // 테이블 구분선 필터링
                                     String str = br.readLine();
                                     while(str != null && !"".equals(str)){
-                                        writer.write(str + "\n");
+                                        String[] split = str.split("\\|");
+                                        if(!map.containsKey(split[2])) q.add(split[2]);
+                                        map.put(split[2], str);
                                         str = br.readLine();
                                     }
 
-                                    if(footer.isEmpty()){
-                                        while(br.ready()){
-                                            str = br.readLine();
-                                            footer.append(str).append("\n");
-                                        }
+                                    if(!footer.isEmpty()) continue;
+                                    while(br.ready()){
+                                        str = br.readLine();
+                                        footer.append(str).append("\n");
                                     }
                                 }
                             }
@@ -45,6 +50,11 @@ public class ReadmeMerge {
                             e.printStackTrace();
                         }
                     });
+            while(!q.isEmpty()){
+                String key = q.poll();
+                writer.write(map.get(key) + "\n");
+                System.out.println(key);
+            }
 
             writer.write(footer.toString());
         }catch(IOException e){
