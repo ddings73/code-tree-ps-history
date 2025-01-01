@@ -26,7 +26,7 @@ jobs:
       uses: actions/setup-java@v4.6.0
       with:
         java-version: '11'
-        distribution: 'zulu'  # JDK 배포판 (AdoptOpenJDK 사용)
+        distribution: 'zulu'  # JDK 배포판
 
     # 3. 프로젝트 빌드 (Java 파일 컴파일)
     - name: Compile Java program
