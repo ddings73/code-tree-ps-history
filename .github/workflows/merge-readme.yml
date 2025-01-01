@@ -32,7 +32,7 @@ jobs:
     - name: Compile Java program
       run: |
         mkdir -p out  # output 디렉토리 생성
-        la -al
+        ls -al
         javac -d out ./.github/workflows/ReadmeMerge.java  # 현재 디렉토리 내에 있는 Java 파일을 컴파일
 
     # 4. Java 프로그램 실행
