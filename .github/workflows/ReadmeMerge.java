@@ -1,7 +1,6 @@
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.*;
-import java.lang.*;
 
 public class ReadmeMerge {
     private static final String rootPath = ".";
