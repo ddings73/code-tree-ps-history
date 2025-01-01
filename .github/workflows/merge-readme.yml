@@ -27,25 +27,75 @@ jobs:
         with:
           python-version: 3.9  # Python 버전 지정
 
-      # 3. 스크립트 실행
-      - name: Merge READMEs
+      # 3. Python 스크립트 실행
+      - name: Merge README files
         run: |
           python <<EOF
           import os
+          import re
 
-          def merge_readmes(base_dir, output_file):
-              with open(output_file, 'w', encoding='utf-8') as outfile:
+          def extract_tables(readme_content):
+              """
+              Extracts all markdown tables from the given README content.
+              """
+              tables = {
+                  "학습하기": [],
+                  "실전 훈련": []
+              }
+
+              # Regex to find markdown tables
+              table_regex = r"(\|.*?\|(?:\n\|.*?-.*\|)+)"
+              matches = re.findall(table_regex, readme_content, re.DOTALL)
+
+              for match in matches:
+                  # Assuming first table is for '학습하기', second is for '실전 훈련'
+                  table = match.strip()
+                  # Place the first table under '학습하기' and second under '실전 훈련'
+                  if len(tables["학습하기"]) == 0:
+                      tables["학습하기"].append(table)
+                  else:
+                      tables["실전 훈련"].append(table)
+
+              return tables
+
+          def merge_tables(base_dir, output_file):
+              """
+              Merges tables from multiple README files into one consolidated README.
+              """
+              combined_tables = {
+                  "학습하기": [],
+                  "실전 훈련": []
+              }
+
+              for root, _, files in os.walk(base_dir):
+                  for file in files:
+                      if file.lower() == "readme.md":
+                          filepath = os.path.join(root, file)
+                          with open(filepath, "r", encoding="utf-8") as infile:
+                              content = infile.read()
+                              tables = extract_tables(content)
+
+                              # Merge tables into respective categories
+                              if tables["학습하기"]:
+                                  combined_tables["학습하기"].extend(tables["학습하기"])
+                              if tables["실전 훈련"]:
+                                  combined_tables["실전 훈련"].extend(tables["실전 훈련"])
+
+              # Write the merged tables to the output README
+              with open(output_file, "w", encoding="utf-8") as outfile:
                   outfile.write("# Combined README\n\n")
-                  for root, dirs, files in os.walk(base_dir):
-                      for file in files:
-                          if file.lower() == "readme.md" and root != base_dir:
-                              filepath = os.path.join(root, file)
-                              with open(filepath, 'r', encoding='utf-8') as infile:
-                                  relative_dir = os.path.relpath(root, base_dir)
-                                  outfile.write(f"## {relative_dir}\n\n")
-                                  outfile.write(infile.read() + "\n\n")
+                  
+                  # Write '학습하기' table
+                  outfile.write("## 📖 학습하기\n\n")
+                  for table in combined_tables["학습하기"]:
+                      outfile.write(table + "\n\n")
 
-          merge_readmes(".", "./README.md")
+                  # Write '실전 훈련' table
+                  outfile.write("## 🥇 실전 훈련\n\n")
+                  for table in combined_tables["실전 훈련"]:
+                      outfile.write(table + "\n\n")
+
+          merge_tables(".", "Combined_README.md")
           EOF
 
       # 4. 변경된 파일 커밋 및 푸시
