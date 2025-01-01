@@ -50,7 +50,7 @@ jobs:
               if file.lower() == "readme.md" and root != ".":
                 readme_path = os.path.join(root, file)
                 
-                start_extraction = false
+                start_extraction = False
                 with open(readme_path, 'r', encoding='utf-8') as f:
                   if "|기록분류|" in line and "|이름|" in line and "|티어|" in line and "|유형|" in line and "|상태|" in line and "|최근 제출 코드|" in line:
                     start_extracting = True  # 이 이후의 라인부터 데이터 추출 시작
