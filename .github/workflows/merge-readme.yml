@@ -95,7 +95,7 @@ jobs:
                   for table in combined_tables["실전 훈련"]:
                       outfile.write(table + "\n\n")
 
-          merge_tables(".", "Combined_README.md")
+          merge_tables(".", "README.md")
           EOF
 
       # 4. 변경된 파일 커밋 및 푸시
