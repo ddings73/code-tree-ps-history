@@ -51,8 +51,8 @@ jobs:
       # 4. 변경된 파일 커밋 및 푸시
       - name: Commit changes
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "ddings73"
+          git config user.email "ddings7303@gmail.com"
           git add README.md
           git commit -m "README 병합"
           git push
