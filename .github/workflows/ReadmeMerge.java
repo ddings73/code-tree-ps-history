@@ -1,11 +1,9 @@
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.*;
 
 public class ReadmeMerge {
-    private static final String rootPath = ".";
+    private static final String rootPath = "D:\\Desktop\\github actions test\\code-tree-ps-history";
 
     private static final StringBuilder header = new StringBuilder()
             .append("# \uD83D\uDCD6 학습하기\n")
@@ -17,21 +15,21 @@ public class ReadmeMerge {
     private static final StringBuilder footer = new StringBuilder();
 
     public static void main(String[] args) {
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rootPath + "\\README.md"), StandardCharsets.UTF_8))){
+        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rootPath + "\\README.md")))){
             writer.write(header.toString());
             Files.walk(Paths.get(rootPath))
                     .filter(Files::isRegularFile)
                     .filter(path -> "README.md".equalsIgnoreCase(path.getFileName().toString()))
                     .filter(path -> !path.toAbsolutePath().toString().equals(Paths.get(rootPath).toAbsolutePath().toString()))
                     .forEach(path -> {
-                        try(BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)){
+                        try(BufferedReader br = Files.newBufferedReader(path)){
                             while(br.ready()){
                                 String line = br.readLine();
                                 if(line.contains("기록분류")){
                                     br.readLine(); // 테이블 구분선 필터링
                                     String str = br.readLine();
-                                    while(!"".equals(str)){
-                                        writer.write(URLDecoder.decode(str, StandardCharsets.UTF_8) + "\n");
+                                    while(str != null && !"".equals(str)){
+                                        writer.write(str + "\n");
                                         str = br.readLine();
                                     }
 
