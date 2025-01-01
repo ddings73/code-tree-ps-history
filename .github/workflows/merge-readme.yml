@@ -28,39 +28,32 @@ jobs:
 
     - name: Merge all README.md files into a single one
       run: |
-        # 각 폴더를 순회하여 README.md 파일을 읽어 하나의 파일로 병합합니다.
         OUTPUT_FILE="README.md"
 
-        # 기존에 merged_README.md 파일이 있으면 삭제합니다.
         if [ -f $OUTPUT_FILE ]; then
           rm $OUTPUT_FILE
         fi
 
-        # 기본 구조 추가
         echo "# 📖 학습하기" > $OUTPUT_FILE
         echo "" >> $OUTPUT_FILE
         echo "# 🥇 실전 훈련" >> $OUTPUT_FILE
         echo "|기록분류|이름|티어|유형|상태|최근 제출 코드|" >> $OUTPUT_FILE
         echo "|---|---|---|---|---|---|" >> $OUTPUT_FILE
 
-        # 각 폴더에서 README.md 파일을 찾아서 필요한 정보 추출
         for folder in $(find . -type d -not -path '*/\.*'); do
           README="$folder/README.md"
           
           if [ -f "$README" ]; then
-            # 각 README.md 파일에서 원하는 정보 추출 (예: 문제 링크, 티어, 유형 등)
             TITLE=$(grep -oP '(?<=\#\#\s)(.*?)(?=\s\-\-)' "$README")
             TIER=$(grep -oP '(?<=티어:)(.*?)(?=\n)' "$README")
             TYPE=$(grep -oP '(?<=유형:)(.*?)(?=\n)' "$README")
             STATUS=$(grep -oP '(?<=상태:)(.*?)(?=\n)' "$README")
             CODE_LINK=$(grep -oP '(?<=코드 링크:)(.*?)(?=\n)' "$README")
 
-            # 테이블 형식으로 merged_README.md에 추가
             echo "|기출문제|[$TITLE](https://www.codetree.ai/training-field/frequent-problems/problems/$TITLE)|$TIER|$TYPE|$STATUS|[$CODE_LINK]($CODE_LINK)|" >> $OUTPUT_FILE
           fi
         done
 
-        # 배지 이미지 링크 추가
         echo "" >> $OUTPUT_FILE
         echo "[b5]: https://img.shields.io/badge/Bronze_5-%235D3E31.svg" >> $OUTPUT_FILE
         echo "[b4]: https://img.shields.io/badge/Bronze_4-%235D3E31.svg" >> $OUTPUT_FILE
@@ -88,7 +81,6 @@ jobs:
         echo "[medium]: https://img.shields.io/badge/보통-%23FFC433.svg?for-the-badge" >> $OUTPUT_FILE
         echo "[hard]: https://img.shields.io/badge/어려움-%23D24D57.svg?for-the-badge" >> $OUTPUT_FILE
 
-    # 변경된 파일 커밋 및 푸시
     - name: Commit changes
       run: |
         git config user.name "ddings73"
