@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import java.io.*;
 
 public class ReadmeMerge {
-    private static final String rootPath = "D:\\Desktop\\github actions test\\code-tree-ps-history";
+    private static final String rootPath = ".";
 
     private static final StringBuilder header = new StringBuilder()
             .append("# \uD83D\uDCD6 학습하기\n")
