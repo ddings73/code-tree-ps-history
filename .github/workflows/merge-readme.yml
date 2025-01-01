@@ -17,97 +17,29 @@ jobs:
       contents: write  # 커밋 및 푸시를 허용
 
     steps:
+    # 1. 코드 체크아웃
     - name: Check out the repository
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    # 2. JDK 설치 (OpenJDK 11 예시)
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
       with:
-        python-version: '3.8'
+        java-version: '11'
+        distribution: 'adoptopenjdk'  # JDK 배포판 (AdoptOpenJDK 사용)
 
-    - name: Merge all README.md files into a single one using Python
+    # 3. 프로젝트 빌드 (Java 파일 컴파일)
+    - name: Compile Java program
       run: |
-        python <<EOF
-        import os
+        mkdir -p out  # output 디렉토리 생성
+        javac -d out ReadmeMerge.java  # 현재 디렉토리 내에 있는 Java 파일을 컴파일
 
-        # 출력 파일 경로
-        output_file = "./README.md"
-
-        # 기존에 README.md 파일이 있으면 삭제
-        if os.path.exists(output_file):
-            os.remove(output_file)
-
-        # 병합할 파일을 위한 헤더 작성
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write("# 📖 학습하기\n\n")
-            f.write("# 🥇 실전 훈련\n")
-            f.write("|기록분류|이름|티어|유형|상태|최근 제출 코드|\n")
-            f.write("|---|---|---|---|---|---|\n")
-
-        # 하위 디렉토리를 순회하며 README.md 파일을 찾아 병합
-        for root, dirs, files in os.walk("."):
-            for file in files:
-              if file.lower() == "readme.md" and root != ".":
-                readme_path = os.path.join(root, file)
-                
-                start_extraction = False
-                with open(readme_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    for line in content.splitelines():
-                        if "|기록분류|" in line and "|이름|" in line and "|티어|" in line and "|유형|" in line and "|상태|" in line and "|최근 제출 코드|" in line:
-                            start_extracting = True  # 이 이후의 라인부터 데이터 추출 시작
-                        elif start_extraction:
-                            if line.strip() == "":
-                              start_extraction = False
-                            elif "|" in line and "-" not in line:
-                              columns = line.split('|')
-                              if len(columns) > 1:
-                                  title = columns[1].strip()  # 이름
-                                  tier = columns[2].strip()   # 티어
-                                  type_ = columns[3].strip()  # 유형
-                                  status = columns[4].strip() # 상태
-                                  code_link = columns[5].strip() # 최근 제출 코드
-      
-                                  if title and tier and type_ and status and code_link:
-                                      with open(output_file, 'a', encoding='utf-8') as f_out:
-                                          f_out.write(f"|기출문제|[{title}](https://www.codetree.ai/training-field/frequent-problems/problems/{title})|{tier}|{type_}|{status}|[{code_link}]({code_link})|\n")
-
-        # 하단에 이미지 배지 추가
-        badge_urls = [
-            ("b5", "https://img.shields.io/badge/Bronze_5-%235D3E31.svg"),
-            ("b4", "https://img.shields.io/badge/Bronze_4-%235D3E31.svg"),
-            ("b3", "https://img.shields.io/badge/Bronze_3-%235D3E31.svg"),
-            ("b2", "https://img.shields.io/badge/Bronze_2-%235D3E31.svg"),
-            ("b1", "https://img.shields.io/badge/Bronze_1-%235D3E31.svg"),
-            ("s5", "https://img.shields.io/badge/Silver_5-%23394960.svg"),
-            ("s4", "https://img.shields.io/badge/Silver_4-%23394960.svg"),
-            ("s3", "https://img.shields.io/badge/Silver_3-%23394960.svg"),
-            ("s2", "https://img.shields.io/badge/Silver_2-%23394960.svg"),
-            ("s1", "https://img.shields.io/badge/Silver_1-%23394960.svg"),
-            ("g5", "https://img.shields.io/badge/Gold_5-%23FFC433.svg"),
-            ("g4", "https://img.shields.io/badge/Gold_4-%23FFC433.svg"),
-            ("g3", "https://img.shields.io/badge/Gold_3-%23FFC433.svg"),
-            ("g2", "https://img.shields.io/badge/Gold_2-%23FFC433.svg"),
-            ("g1", "https://img.shields.io/badge/Gold_1-%23FFC433.svg"),
-            ("p5", "https://img.shields.io/badge/Platinum_5-%2376DDD8.svg"),
-            ("p4", "https://img.shields.io/badge/Platinum_4-%2376DDD8.svg"),
-            ("p3", "https://img.shields.io/badge/Platinum_3-%2376DDD8.svg"),
-            ("p2", "https://img.shields.io/badge/Platinum_2-%2376DDD8.svg"),
-            ("p1", "https://img.shields.io/badge/Platinum_1-%2376DDD8.svg"),
-            ("passed", "https://img.shields.io/badge/Passed-%23009D27.svg"),
-            ("failed", "https://img.shields.io/badge/Failed-%23D24D57.svg"),
-            ("easy", "https://img.shields.io/badge/쉬움-%235cb85c.svg?for-the-badge"),
-            ("medium", "https://img.shields.io/badge/보통-%23FFC433.svg?for-the-badge"),
-            ("hard", "https://img.shields.io/badge/어려움-%23D24D57.svg?for-the-badge")
-        ]
-
-        with open(output_file, 'a', encoding='utf-8') as f:
-            for label, url in badge_urls:
-                f.write(f"[{label}]: {url}\n")
-                
-        EOF
+    # 4. Java 프로그램 실행
+    - name: Run Java program
+      run: |
+        java -cp out ReadmeMerge  # out 디렉터리 내에 컴파일된 클래스를 실행
         
-    # 4. 변경된 파일 커밋 및 푸시
+    # 5. 변경된 파일 커밋 및 푸시
     - name: Commit changes
       run: |
         git config user.name "ddings73"
