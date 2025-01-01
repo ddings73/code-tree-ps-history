@@ -104,12 +104,14 @@ jobs:
                 f.write(f"[{label}]: {url}\n")
                 
         EOF
+        
+    # 4. 변경된 파일 커밋 및 푸시
     - name: Commit changes
       run: |
         git config user.name "ddings73"
         git config user.email "ddings7303@gmail.com"
-        git add .
-        git commit -m "Update merged README file"
+        git add README.md
+        git commit -m "README 병합"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.MY_SECRET_TOKEN }}
