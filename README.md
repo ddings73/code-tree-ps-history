@@ -31,6 +31,7 @@
 |기출문제|[팩맨](https://www.codetree.ai/training-field/frequent-problems/problems/pacman)|![Gold1][g1]|`Simulation`|![Passed][passed]|[링크](https://github.com/ddings73/CodeTree/blob/main/241229/%ED%8C%A9%EB%A7%A8/pacman.java)|
 |기출문제|[냉방 시스템](https://www.codetree.ai/training-field/frequent-problems/problems/cooling-system)|![Platinum5][p5]|`dx dy technique` `Simulation`|![Passed][passed]|[링크](https://github.com/ddings73/CodeTree/blob/main/241230/%EB%83%89%EB%B0%A9%20%EC%8B%9C%EC%8A%A4%ED%85%9C/cooling-system.java)|
 |기출문제|[정육면체 한번 더 굴리기](https://www.codetree.ai/training-field/frequent-problems/problems/cube-rounding-again)|![Gold3][g3]|`Simulation`|![Passed][passed]|[링크](https://github.com/ddings73/CodeTree/blob/main/241231/%EC%A0%95%EC%9C%A1%EB%A9%B4%EC%B2%B4%20%ED%95%9C%EB%B2%88%20%EB%8D%94%20%EA%B5%B4%EB%A6%AC%EA%B8%B0/cube-rounding-again.java)|
+|기출문제|[미로 타워 디펜스](https://www.codetree.ai/training-field/frequent-problems/problems/maze-tower-defense)|![Gold1][g1]|`dx dy technique` `Simulation`|![Passed][passed]|[링크](https://github.com/ddings73/code-tree-ps-history/blob/main/250101/%EB%AF%B8%EB%A1%9C%20%ED%83%80%EC%9B%8C%20%EB%94%94%ED%8E%9C%EC%8A%A4/maze-tower-defense.java)|
 
 
 
