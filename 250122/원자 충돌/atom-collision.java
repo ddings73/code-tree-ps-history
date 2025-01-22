@@ -69,24 +69,24 @@ public class Main {
                     int count = nxt_map[i][j].size();
                     if(count < 2) map[i][j].addAll(nxt_map[i][j]);
                     else{
-                        int sum_m = 0, sum_s = 0;
+                        int m = 0, s = 0;
                         boolean even = false, odd = false;
                         for(int[] atom : nxt_map[i][j]){
-                            sum_m += atom[0];
-                            sum_s += atom[1];
+                            m += atom[0];
+                            s += atom[1];
 
-                            even = atom[2] % 2 == 0;
-                            odd = atom[2] % 2 == 1;
+                            even = even || atom[2] % 2 == 0;
+                            odd = odd || atom[2] % 2 == 1;
                         }
 
-                        int new_m = sum_m / 5;
-                        int new_s = sum_s / count;
+                        m /= 5;
+                        s /= count;
 
-                        if(new_m == 0) continue;
+                        if(m == 0) continue;
                         
                         for(int k = 0; k < 8; k += 2){
                             int d = even && odd ? k + 1 : k;
-                            map[i][j].add(new int[]{new_m, new_s, d});
+                            map[i][j].add(new int[]{m, s, d});
                         }
                     }
                 }
