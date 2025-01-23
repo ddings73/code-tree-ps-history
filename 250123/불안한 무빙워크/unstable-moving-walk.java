@@ -27,7 +27,7 @@ public class Main {
             count++;
 
             p1 = p1 == 0 ? 2*N - 1 : p1 - 1;
-            int pN = (p1 + N) % (2 * N);
+            int pN = (p1 + N - 1) % (2 * N);
             
             Queue<Integer> clone = new ArrayDeque(q);
             
@@ -35,8 +35,8 @@ public class Main {
             while(!clone.isEmpty()){
                 int pos = clone.poll();
 
-                if(pos == pN){
-                    check[pN] = false;
+                if(pos == pN || pos == (pN + 1) % (2 * N)){
+                    check[pos] = false;
                     continue;
                 }
 
@@ -56,7 +56,6 @@ public class Main {
                 point[p1]--;
                 q.add(p1);
             }
-
         }
 
         System.out.println(count);
