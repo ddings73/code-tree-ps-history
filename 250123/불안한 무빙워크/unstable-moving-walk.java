@@ -35,14 +35,18 @@ public class Main {
             while(!clone.isEmpty()){
                 int pos = clone.poll();
 
+                if(pos == pN){
+                    check[pN] = false;
+                    continue;
+                }
+
                 int n_pos = (pos + 1) % (2 * N);
                 if(check[n_pos] || point[n_pos] == 0) q.add(pos);
-                else if(n_pos != pN){
+                else {
                     check[pos] = false;
                     check[n_pos] = true;
-
+                    
                     point[n_pos]--;
-
                     q.add(n_pos);
                 }
             }
@@ -52,6 +56,7 @@ public class Main {
                 point[p1]--;
                 q.add(p1);
             }
+
         }
 
         System.out.println(count);
