@@ -81,7 +81,7 @@ public class Main {
 
     private static int getDist(int pX, int pY, int tX, int tY){
         PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2)->{
-            return Integer.compare(o1[0], o2[1]);
+            return Integer.compare(o1[0], o2[0]);
         });
 
         int[][] visit = new int[N + 1][N + 1];
