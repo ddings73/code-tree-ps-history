@@ -55,6 +55,7 @@ public class Main {
                 if(dist == -1) continue;
                 pq.add(new int[]{key, dist, value[0], value[1]});
             }
+
             if(pq.isEmpty()) break;
             int[] target = pq.poll();
             charge -= target[1];
@@ -103,7 +104,7 @@ public class Main {
                 int nX = x + dr[i];
                 int nY = y + dc[i];
                 if(nX < 1 || nX > N || nY < 1 || nY > N) continue;
-                if(visit[nX][nY] <= now[0] || map[nX][nY] == 1) continue;
+                if(visit[nX][nY] <= now[0] + 1 || map[nX][nY] == 1) continue;
                 visit[nX][nY] = now[0] + 1;
                 pq.add(new int[]{now[0] + 1, nX, nY});    
             }
