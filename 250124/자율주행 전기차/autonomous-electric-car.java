@@ -63,7 +63,7 @@ public class Main {
             int[] value = info.get(key);
 
             int dist = getDist(value[0], value[1], value[2], value[3]);
-            if(dist > charge){
+            if(dist == -1 || dist > charge){
                 charge = 0;
                 break;
             }
