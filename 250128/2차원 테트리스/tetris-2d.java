@@ -51,6 +51,7 @@ public class Main {
             }
         }
         System.out.println(count);
+    
     }
 
     private static int putInto(int[][] arr, Block b){
@@ -76,7 +77,7 @@ public class Main {
 
             if(!full) continue;
             score++;
-            for(int j = i; j > 5; j--){
+            for(int j = i; j > 3; j--){
                 for(int k = 0; k < 4; k++){
                     arr[j][k] = arr[j - 1][k];
                 }
