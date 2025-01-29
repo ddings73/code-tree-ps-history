@@ -49,7 +49,7 @@ public class Main {
             List<Queue<Integer>> clone = new ArrayList<>();
             for(Queue<Integer> q : q_list){
                 clone.add(new ArrayDeque<>(q));
-                dup = dup || newOne.peek() == q.peek();
+                dup = dup || isSamePosition(newOne, q);
             }
 
             if(!dup){
@@ -65,15 +65,14 @@ public class Main {
             Queue<Integer> q = new ArrayDeque<>(q_list.get(i));
             for(int j = 0; !q.isEmpty() && j < move; j++) q.poll();
             
-            
-            List<Queue<Integer>> clone = new ArrayList<>();
             boolean dup = false;
+            List<Queue<Integer>> clone = new ArrayList<>();
             for(int j = 0; j < len; j++){
                 if(i == j) continue;
                 clone.add(new ArrayDeque<>(q_list.get(j)));
 
                 if(q.isEmpty()) continue;
-                dup = dup || q.peek() == q_list.get(j).peek();
+                dup = dup || isSamePosition(q, q_list.get(j));
             }
 
             if(dup) continue;
@@ -85,7 +84,7 @@ public class Main {
                     q = new ArrayDeque<>(q2);
                 }else if(num == 20){
                     q = new ArrayDeque<>(q3);
-                }else if(num == 30 && q.size() > 3){
+                }else if(num == 30 && q.size() > 4){
                     q = new ArrayDeque<>(q4);
                 }
 
@@ -97,6 +96,10 @@ public class Main {
 
 
         return result;
+    }
+
+    private static boolean isSamePosition(Queue<Integer> q1, Queue<Integer> q2){
+        return q1.peek() == q2.peek() && q1.size() == q2.size();
     }
 
     private static int[] input(){
@@ -112,16 +115,3 @@ public class Main {
         return input_data;
     }
 }
-
-/*
-2 4 10 25 10 30 40 19 10 30
-2 4 10 8 30 10 40 19 10 25 
-
-2 6 12 20 10 22 25 40 25 10
-2 4 10 25 12 30 40 18 26 36
-
-2 6 16 41 53 83 123 141 167 203
-
-10 8 19 30 35 18 26 32 36 40
-10 18 37 67 102 120 146 178 214 254 
-*/
