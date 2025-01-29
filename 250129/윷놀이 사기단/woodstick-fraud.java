@@ -36,6 +36,7 @@ public class Main {
 
     private static int playGame(List<Queue<Integer>> q_list, int remain, int idx, int point, int[] move_info){
         if(idx == move_info.length) return point;
+        
 
         int result = 0;
         int move = move_info[idx];
@@ -44,6 +45,7 @@ public class Main {
         if(remain > 0){
             Queue<Integer> newOne = new ArrayDeque(q1);
             for(int i = 0; i < move; i++) newOne.poll();
+            if(newOne.peek() == 10) newOne = new ArrayDeque<>(q2);
 
             boolean dup = false;
             List<Queue<Integer>> clone = new ArrayList<>();
@@ -53,8 +55,6 @@ public class Main {
             }
 
             if(!dup){
-                if(newOne.peek() == 10) newOne = new ArrayDeque<>(q2);
-                
                 clone.add(newOne);
                 result = Math.max(result, playGame(clone, remain - 1, idx + 1, point + newOne.peek(), move_info)); 
             }
@@ -84,7 +84,7 @@ public class Main {
                     q = new ArrayDeque<>(q2);
                 }else if(num == 20){
                     q = new ArrayDeque<>(q3);
-                }else if(num == 30 && q.size() > 4){
+                }else if(num == 30 && q.size() > 3){
                     q = new ArrayDeque<>(q4);
                 }
 
