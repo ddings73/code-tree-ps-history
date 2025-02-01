@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
 
-    private static int MAX = 100*20;
+    private static int MAX = 100*20*20;
     private static int N;
     private static int[][] board;
     
@@ -97,7 +97,7 @@ public class Main {
                 max = Math.max(max, score[i]);
                 min = Math.min(min, score[i]);
             }
-
+     
             return max - min;
         }
 
