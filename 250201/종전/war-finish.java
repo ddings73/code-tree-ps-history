@@ -69,28 +69,21 @@ public class Main {
                     if(border[i][j]) break;
                     if(0 <= i && i < points[3][0] && 0 <= j && j <= points[2][1]){
                         area[i][j] = 2;
-                    }else if(0 <= i && i <= points[1][0] && points[2][1] < j && j < N){
-                        area[i][j] = 3;
                     }else if(points[3][0] <= i && i < N && 0 <= j && j < points[0][1]){
                         area[i][j] = 4;
-                    }else if(points[1][0] < i && i < N && points[0][1] <= j && j < N){
-                        area[i][j] = 5;
                     }
                 }
 
                 for(int j = N - 1; j >= 0; j--){
                     if(border[i][j]) break;
-                    if(0 <= i && i < points[3][0] && 0 <= j && j <= points[2][1]){
-                        area[i][j] = 2;
-                    }else if(0 <= i && i <= points[1][0] && points[2][1] < j && j < N){
+                    if(0 <= i && i <= points[1][0] && points[2][1] < j && j < N){
                         area[i][j] = 3;
-                    }else if(points[3][0] <= i && i < N && 0 <= j && j < points[0][1]){
-                        area[i][j] = 4;
                     }else if(points[1][0] < i && i < N && points[0][1] <= j && j < N){
                         area[i][j] = 5;
                     }
                 }
             }
+
 
             int[] score = new int[6];
             for(int i = 0; i < N; i++){
