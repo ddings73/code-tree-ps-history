@@ -65,7 +65,7 @@ public class Main {
                     for(int i = 0; i < N; i++){
                         for(int j = 0; j < N; j++){
                             if(board[i][j] != 0) continue;
-                            mergeBoard[i][j] = mergeBoard[i][j] == 0 || mergeBoard[i][j] > hospitalRmBoard[hIdx][i][j] 
+                            mergeBoard[i][j] = mergeBoard[i][j] == 0 || (mergeBoard[i][j] > hospitalRmBoard[hIdx][i][j] && hospitalRmBoard[hIdx][i][j] != 0)
                                 ? hospitalRmBoard[hIdx][i][j]
                                 : mergeBoard[i][j];
                         }
@@ -84,6 +84,7 @@ public class Main {
                     result = Math.max(result, mergeBoard[i][j]);
                 }
             }
+
             return result;
         }
         if(idx == hCnt) return -1;
