@@ -21,6 +21,11 @@ public class Main {
         */
         int sec = 0;
         while(sec++ <= 100){
+            if(R <= row && C <= col && list.get(R - 1).get(C - 1) == K){
+                sec--;
+                break;
+            }
+
             if(row >= col){
                 int newCol = col;
                 for(int i = 0; i < row; i++){
@@ -128,8 +133,6 @@ public class Main {
                     }
                 }
             }
-
-            if(R <= row && C <= col && list.get(R - 1).get(C - 1) == K) break;
         }
 
         if(sec > 100) sec = -1;
