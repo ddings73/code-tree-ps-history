@@ -36,13 +36,12 @@ public class Main {
             int div = p / (len - 1);
             int mod = p % (len - 1);
 
-            if(div % 2 == 0 || mod == 0){
+            if(div % 2 == 0){
                 p %= (len - 1);
-                if(mod == 0) p += (len - 1);
             }else{
                 p = len - 1 - mod;
             }
-
+            
             if((minus && div % 2 == 0) || (!minus && div % 2 == 1)){
                 this.d = this.d == 0 ? 1
                     : this.d == 1 ? 0
