@@ -39,7 +39,6 @@ public class Main {
             kill = false;
 
             int[] target = new int[]{-1, -1, N * N};
-
             int[][] visit = new int[N][N];
             for(int i = 0; i < N; i++) Arrays.fill(visit[i], N * N);
 
@@ -69,7 +68,7 @@ public class Main {
                     int nr = r + robot.dr[i];
                     int nc = c + robot.dc[i];
                     if(nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
-                    if(visit[nr][nc] <= move || board[nr][nc] > robot.level) continue;
+                    if(visit[nr][nc] <= move + 1 || board[nr][nc] > robot.level) continue;
                     visit[nr][nc] = move + 1;
                     q.add(new int[]{nr, nc, move + 1});
                 }
